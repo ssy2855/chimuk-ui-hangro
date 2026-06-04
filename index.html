@@ -7,11 +7,10 @@
   <style>
     :root{
       --bg:#04101b;
-      --bg-deep:#02070d;
       --panel:rgba(7,15,26,.78);
-      --panel-strong:rgba(8,14,24,.93);
+      --panel-strong:rgba(8,14,24,.94);
       --line:rgba(216,177,107,.22);
-      --line-strong:rgba(216,177,107,.45);
+      --line-strong:rgba(216,177,107,.48);
       --gold:#d8b16b;
       --gold2:#f0d8a0;
       --cyan:#78d9ea;
@@ -20,6 +19,7 @@
       --muted:#b8c4cf;
       --danger:#ffb7b7;
       --success:#9ce3cb;
+      --red:#9f241c;
       --shadow:0 24px 60px rgba(0,0,0,.42);
       --radius:28px;
     }
@@ -78,6 +78,10 @@
       background:linear-gradient(180deg, rgba(15,75,90,.92), rgba(8,50,59,.96));
       border-color:rgba(114,213,230,.35);
       box-shadow:0 0 28px rgba(120,217,234,.12);
+    }
+    .btn.fail{
+      background:linear-gradient(180deg, rgba(112,28,22,.95), rgba(65,15,14,.96));
+      border-color:rgba(255,183,183,.28);
     }
     .btn.secondary{background:rgba(255,255,255,.025)}
     .btn.large{min-height:58px;padding:0 28px}
@@ -194,7 +198,7 @@
       border-bottom:1px solid rgba(255,255,255,.06);
     }
     .game-topbar{
-      width:min(1500px, calc(100% - 32px));
+      width:min(1600px, calc(100% - 32px));
       margin:0 auto;
       min-height:82px;
       display:flex;
@@ -206,7 +210,7 @@
     .topbar-center{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
     .pill{padding:10px 14px;border-radius:999px;border:1px solid rgba(216,177,107,.2);background:rgba(255,255,255,.04);font-size:.9rem;color:#deebf3}
     .topbar-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .layout{width:min(1500px,calc(100% - 32px));margin:20px auto 32px;display:grid;grid-template-columns:270px minmax(0,1fr) 330px;gap:18px;align-items:start}
+    .layout{width:min(1600px,calc(100% - 32px));margin:20px auto 32px;display:grid;grid-template-columns:265px minmax(0,1fr) 360px;gap:18px;align-items:start}
     .side-panel{padding-bottom:18px}
     .panel-head{padding:22px 22px 10px}
     .panel-head h2{margin:0 0 8px;color:var(--gold2);font-size:1.26rem}
@@ -221,11 +225,44 @@
     .space-btn small{display:block;color:var(--muted);line-height:1.5}
     .main-panel{padding:22px}
     .hero-block{display:grid;grid-template-columns:1.2fr .85fr;gap:18px}
-    .visual-frame{min-height:420px;border-radius:26px;overflow:hidden;position:relative;background-position:center;background-size:cover;border:1px solid rgba(255,255,255,.06)}
-    .visual-frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(4,10,18,.08), rgba(4,10,18,.72))}
+    .visual-frame{min-height:460px;border-radius:26px;overflow:hidden;position:relative;background-position:center;background-size:cover;border:1px solid rgba(255,255,255,.06)}
+    .visual-frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(4,10,18,.08), rgba(4,10,18,.78))}
     .visual-overlay{position:absolute;left:28px;bottom:28px;z-index:1;max-width:75%}
     .visual-overlay h1{margin:14px 0 10px;font-size:2.7rem;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.35)}
     .visual-overlay p{margin:0;color:#dbe6ee;line-height:1.8;font-size:1.05rem}
+    .hotspot{
+      position:absolute;
+      z-index:3;
+      transform:translate(-50%,-50%);
+      min-width:32px;
+      height:32px;
+      border-radius:999px;
+      border:2px solid rgba(255,79,65,.98);
+      background:rgba(122,28,20,.28);
+      box-shadow:0 0 0 6px rgba(255,79,65,.12), 0 0 26px rgba(255,79,65,.34);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:.2s;
+    }
+    .hotspot::after{
+      content:attr(data-label);
+      position:absolute;
+      left:38px;
+      top:50%;
+      transform:translateY(-50%);
+      white-space:nowrap;
+      padding:7px 10px;
+      border-radius:12px;
+      background:rgba(5,10,18,.78);
+      border:1px solid rgba(216,177,107,.2);
+      color:#f7e3bf;
+      font-size:.82rem;
+      opacity:.95;
+    }
+    .hotspot:hover{transform:translate(-50%,-50%) scale(1.08)}
+    .hotspot.found{border-color:rgba(120,217,234,.95);box-shadow:0 0 0 6px rgba(120,217,234,.12), 0 0 26px rgba(120,217,234,.34)}
     .summary-card{padding:26px;border-radius:26px;background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));border:1px solid rgba(216,177,107,.14)}
     .summary-card h2{margin:0 0 12px;font-size:2rem;color:var(--gold2)}
     .summary-card p{margin:0;color:var(--muted);line-height:1.85}
@@ -257,6 +294,39 @@
     .list-box li{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(216,177,107,.1);line-height:1.65}
     .list-box li small{display:block;color:var(--muted);margin-top:4px}
     .memo-box{padding:16px;border-radius:18px;background:rgba(8,50,59,.32);border:1px solid rgba(114,213,230,.15);color:#daf1f4;line-height:1.8}
+    .suspect-list,.statement-list{display:grid;gap:12px}
+    .suspect-card{
+      display:grid;
+      grid-template-columns:78px 1fr;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      border-radius:18px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(216,177,107,.12);
+    }
+    .suspect-img{
+      width:78px;
+      height:92px;
+      border-radius:14px;
+      background-size:cover;
+      background-position:center;
+      border:1px solid rgba(216,177,107,.18);
+    }
+    .suspect-card h4{margin:0 0 4px;color:var(--gold2);font-size:1rem}
+    .suspect-card p{margin:0;color:var(--muted);line-height:1.55;font-size:.86rem}
+    .statement-card{
+      display:grid;
+      grid-template-columns:58px 1fr;
+      gap:10px;
+      padding:12px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(216,177,107,.1);
+    }
+    .statement-card .mini-img{width:58px;height:58px;border-radius:12px;background-size:cover;background-position:center}
+    .statement-card strong{color:var(--gold2)}
+    .statement-card p{margin:4px 0 0;color:var(--muted);line-height:1.6;font-size:.87rem}
 
     /* Modal / puzzle */
     .modal{position:fixed;inset:0;display:none;place-items:center;padding:22px;z-index:200;background:rgba(2,7,13,.72);backdrop-filter:blur(10px)}
@@ -290,8 +360,14 @@
     .select-box option{background:#07111d;color:#fff}
     .code-row{display:flex;gap:10px;align-items:center;margin-top:14px}
     .report-grid{margin-top:14px}
-    .report-btn small{display:block;margin-top:6px;color:var(--muted)}
-    .report-btn.disabled{opacity:.4;cursor:not-allowed}
+    .report-form{display:grid;gap:12px;margin-top:16px}
+    .report-row{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:center;padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(216,177,107,.12)}
+    .report-row label{color:#f1dfbd;font-weight:800}
+    .timeline-choice{display:grid;gap:8px}
+    .timeline-choice button{width:100%}
+    .report-img{width:100%;border-radius:24px;border:1px solid rgba(216,177,107,.18);margin-top:14px}
+    .ending-success .modal-headline h3{color:#83f5df}
+    .ending-fail .modal-headline h3{color:#ffb3a9}
 
     @media (max-width:1280px){
       .layout{grid-template-columns:250px minmax(0,1fr)}
@@ -303,7 +379,7 @@
     }
     @media (max-width:980px){
       .layout{grid-template-columns:1fr}
-      .hero-block,.modal-grid,.sequence-grid{grid-template-columns:1fr}
+      .hero-block,.modal-grid,.sequence-grid,.report-row{grid-template-columns:1fr}
       .clue-grid{grid-template-columns:1fr}
       .game-topbar{flex-direction:column;justify-content:center;padding:14px 0}
       .visual-overlay{max-width:90%}
@@ -317,6 +393,7 @@
       .hero-actions,.topbar-actions{flex-direction:column;align-items:stretch}
       .btn{width:100%}
       .code-row{flex-direction:column}
+      .hotspot::after{display:none}
     }
   </style>
 </head>
@@ -356,7 +433,7 @@
               <li><span>장소</span><strong>VIP 크루즈 · 심야 항로</strong></li>
               <li><span>피해자</span><strong>제약회사 대표</strong></li>
               <li><span>플레이어</span><strong>사진작가 김민형</strong></li>
-              <li><span>핵심 단서</span><strong>촬영 시각, 복도 동선, 호출 장치 기록</strong></li>
+              <li><span>목표</span><strong>한 명의 범인이 아니라, 죽음이 완성된 구조를 증명하라</strong></li>
             </ul>
           </div>
         </div>
@@ -386,10 +463,10 @@
             <h2>VIP 크루즈에서 벌어진 의문의 죽음</h2>
             <p>공식 발표는 단순한 사망이었다. 하지만 객실 안에서 남겨진 흔적은 다른 말을 한다. 사건은 한 사람의 감정적 폭발만으로 설명되지 않는다. 누군가는 죽음의 조건을 만들었고, 누군가는 직접적인 충돌을 일으켰으며, 누군가는 구조 요청을 늦췄다.</p>
             <div class="feature-grid">
-              <article class="feature-card"><h3>사진 속 시간 단서</h3><p>촬영 원본과 EXIF 시각을 바탕으로 사건의 타임라인을 재구성한다.</p></article>
-              <article class="feature-card"><h3>공간 기반 탐색</h3><p>갑판부터 객실까지, 크루즈 곳곳을 순차적으로 조사한다.</p></article>
-              <article class="feature-card"><h3>진술과 기록의 충돌</h3><p>호출 로그, 내부 문서, 약품 기록을 대조해 거짓을 무너뜨린다.</p></article>
-              <article class="feature-card"><h3>복합 진실형 엔딩</h3><p>단순 범인 찾기를 넘어 죽음의 구조 전체를 밝혀야 진엔딩이 열린다.</p></article>
+              <article class="feature-card"><h3>이미지 클릭형 조사</h3><p>공간 이미지 위의 조사 포인트를 눌러 단서를 확보한다.</p></article>
+              <article class="feature-card"><h3>인물 진술 대조</h3><p>강하나, 이민정, 황세준의 진술과 물리 단서를 비교한다.</p></article>
+              <article class="feature-card"><h3>보고서 작성형 결말</h3><p>한 명만 지목하면 실패, 세 사람의 역할을 모두 맞혀야 성공한다.</p></article>
+              <article class="feature-card"><h3>진엔딩 목표</h3><p>불완전한 결론은 처음부터 다시 조사해야 한다.</p></article>
             </div>
           </div>
         </div>
@@ -402,12 +479,12 @@
             <h2>조사 흐름</h2>
           </div>
           <div class="flow-grid">
-            <div class="flow-card"><span>01</span><h3>갑판</h3><p>사진 원본과 촬영 시각 확인</p></div>
-            <div class="flow-card"><span>02</span><h3>복도</h3><p>발자국과 손잡이 흔적으로 동선 추적</p></div>
-            <div class="flow-card"><span>03</span><h3>VIP 라운지</h3><p>컵 위치와 좌석 배치 비교</p></div>
-            <div class="flow-card"><span>04</span><h3>의료실</h3><p>약품 기록과 누락 약물 확인</p></div>
-            <div class="flow-card"><span>05</span><h3>업무 공간</h3><p>협박 문서와 내부 자료 복구</p></div>
-            <div class="flow-card"><span>06</span><h3>피해자 객실</h3><p>호출 장치 기록과 물리 흔적 종합</p></div>
+            <div class="flow-card"><span>01</span><h3>갑판</h3><p>사진 속 시간 순서를 맞춰 초기 동선을 파악한다.</p></div>
+            <div class="flow-card"><span>02</span><h3>복도</h3><p>발자국과 손잡이 흔적으로 객실 접근 순서를 복원한다.</p></div>
+            <div class="flow-card"><span>03</span><h3>VIP 라운지</h3><p>컵 위치와 좌석 배치로 강하나의 접근 가능성을 확인한다.</p></div>
+            <div class="flow-card"><span>04</span><h3>의료실</h3><p>누락 약물이 죽음의 조건을 만들었는지 검토한다.</p></div>
+            <div class="flow-card"><span>05</span><h3>업무 공간</h3><p>협박 문서로 황세준의 압박 관계를 밝힌다.</p></div>
+            <div class="flow-card"><span>06</span><h3>피해자 객실</h3><p>호출 장치 기록과 현장 흔적으로 마지막 개입자를 밝힌다.</p></div>
           </div>
         </div>
       </section>
@@ -438,8 +515,8 @@
 
       <section class="section cta-section">
         <div class="container cta-box glass-card">
-          <h2>이제, 당신이 마지막 사진을 확인할 차례입니다.</h2>
-          <p>어두운 밤바다 위, 숨겨진 단서를 조사하고 진실을 밝혀내세요.</p>
+          <h2>진실은 한 사람의 이름이 아니라, 세 사람의 순서 속에 있다.</h2>
+          <p>불완전한 결론은 실패다. 모든 단서를 종합해 진엔딩 보고서를 완성하세요.</p>
           <button type="button" class="btn primary large" data-start-game>사건 조사 시작하기</button>
         </div>
       </section>
@@ -458,6 +535,7 @@
         <div class="topbar-center">
           <span class="pill">플레이어 · 김민형</span>
           <span class="pill" id="currentSpaceBadge">현재 공간: 갑판</span>
+          <span class="pill" id="currentProgressBadge">단서 0 / 12</span>
         </div>
         <div class="topbar-actions">
           <button class="btn" id="hintBtn" type="button">힌트</button>
@@ -478,6 +556,7 @@
       <main class="panel main-panel">
         <section class="hero-block">
           <div class="visual-frame" id="spaceVisual">
+            <div id="hotspotLayer"></div>
             <div class="visual-overlay">
               <span class="eyebrow">SCENE</span>
               <h1 id="spaceName">갑판</h1>
@@ -502,6 +581,7 @@
             </div>
             <span id="clueCounter"></span>
           </div>
+          <p class="muted">공간 이미지 위의 붉은 조사 포인트를 클릭하거나, 아래 단서 카드를 눌러 조사할 수 있습니다.</p>
           <div class="clue-grid" id="clueGrid"></div>
         </section>
 
@@ -520,7 +600,7 @@
       <aside class="panel side-panel right-panel">
         <div class="panel-head">
           <h2>조사 기록</h2>
-          <p>발견한 단서와 해결한 퍼즐, 최종 추리 진행도를 기록한다.</p>
+          <p>발견한 단서, 인물 정보, 진술, 진행도를 기록한다.</p>
         </div>
         <div class="progress-panel">
           <div class="progress-meta">
@@ -529,6 +609,17 @@
           </div>
           <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
         </div>
+
+        <div class="record-group">
+          <div class="mini-head"><h3>인물 정보</h3><span>용의자</span></div>
+          <div class="suspect-list" id="suspectList"></div>
+        </div>
+
+        <div class="record-group">
+          <div class="mini-head"><h3>인물 진술</h3><span>대조 필요</span></div>
+          <div class="statement-list" id="statementList"></div>
+        </div>
+
         <div class="record-group">
           <div class="mini-head"><h3>발견한 단서</h3><span id="foundClueText">0개</span></div>
           <ul id="foundClues" class="list-box"></ul>
@@ -575,25 +666,27 @@
   </div>
 
   <div class="modal" id="reportModal">
-    <div class="modal-panel">
+    <div class="modal-panel wide">
       <button class="modal-close" data-close="reportModal">×</button>
       <div class="modal-headline">
-        <span class="eyebrow">REPORT</span>
-        <h3>최종 보고서</h3>
-        <p>누구에게 어떤 책임을 부여할지 선택하라.</p>
+        <span class="eyebrow">FINAL REPORT</span>
+        <h3>최종 보고서 작성</h3>
+        <p>한 명만 지목하면 실패입니다. 세 사람의 역할과 순서를 모두 맞혀 사건 구조를 완성하세요.</p>
       </div>
       <div id="reportOptions" class="report-grid"></div>
     </div>
   </div>
 
   <div class="modal" id="endingModal">
-    <div class="modal-panel">
+    <div class="modal-panel wide" id="endingPanel">
       <button class="modal-close" data-close="endingModal">×</button>
       <div class="modal-headline">
         <span class="eyebrow">ENDING</span>
         <h3 id="endingTitle"></h3>
       </div>
+      <img id="endingReportImage" class="report-img" alt="엔딩 보고서 이미지">
       <div id="endingBody" class="detail-box"></div>
+      <div class="action-row" id="endingActions"></div>
     </div>
   </div>
 
@@ -610,72 +703,98 @@
 
   <script>
     const GAME_DATA = {
+      suspects: {
+        kang: {
+          id:'kang',
+          name:'강하나',
+          role:'VIP 행사 초청자',
+          image:'assets/char-kang-hana.png',
+          profile:'피해자와 제약회사 관련 접점이 있으며, 차분하고 계산적인 태도를 보인다. 관련 단서: 컵, 약품 기록, 라운지 좌석.',
+          statement:'“대표님과는 짧게 인사만 나눴어요. 컵에는 손댄 적 없습니다.”'
+        },
+        lee: {
+          id:'lee',
+          name:'이민정',
+          role:'행사 게스트',
+          image:'assets/char-lee-minjung.png',
+          profile:'피해자와 감정적으로 충돌한 정황이 있으며, 초반에 가장 의심스러운 인물이다. 관련 단서: 복도 동선, 객실 흔적, 침구 압박.',
+          statement:'“객실에 간 건 맞아요. 하지만 그때 대표는 이미 이상한 상태였어요.”'
+        },
+        hwang: {
+          id:'hwang',
+          name:'황세준',
+          role:'행사 운영 담당자',
+          image:'assets/char-hwang-sejun.png',
+          profile:'내부 자료와 호출 장치에 접근할 수 있다. 신고자처럼 보이지만 후반에 의심이 커진다. 관련 단서: 협박 메모, 내부 이메일, 호출 장치 로그.',
+          statement:'“호출 장치는 고장난 줄 알았습니다. 제가 일부러 막은 건 아닙니다.”'
+        }
+      },
       spaces: [
         {
           id:'deck', name:'갑판', short:'사진과 달빛이 타임라인의 출발점이 되는 곳.',
-          description:'밤바다와 달빛 아래에서 촬영된 원본 사진은 사건의 첫 시간대를 고정하는 기준점이다. 플레이어는 사진 속 선체 방향, 난간의 젖은 흔적, 촬영 시각을 바탕으로 사건이 공식 발표보다 앞서 시작되었음을 알아낸다.',
+          description:'밤바다와 달빛 아래에서 촬영된 원본 사진은 사건의 첫 시간대를 고정하는 기준점이다. 사진 속 시간 순서를 맞춰, 공식 신고 이전에 누가 움직였는지 확인해야 한다.',
           image:'assets/space-deck.png', unlockedBy:null, clueIds:['deck_photo','deck_time'], puzzleId:'puzzle_photo_order',
-          hint:'사진은 단순한 풍경이 아니다. 가장 이른 시각의 사진과 가장 늦은 시각의 사진을 기준으로 중간 순서를 맞춰보자.'
+          hint:'사진은 단순한 풍경이 아니다. 가장 이른 시각과 가장 늦은 시각을 기준으로 중간 순서를 맞춰보자.',
+          hotspots:[{clueId:'deck_photo',x:32,y:62,label:'사진 원본'},{clueId:'deck_time',x:68,y:42,label:'촬영 시각'}]
         },
         {
           id:'corridor', name:'복도', short:'어긋난 동선과 그림자가 남아 있는 긴 복도.',
-          description:'복도에는 서로 다른 방향의 발자국, 문 손잡이의 닳은 흔적, CCTV 사각지대가 남아 있다. 이 공간에서는 누가 먼저 객실에 접근했고 누가 나중에 빠져나왔는지 복원해야 한다.',
+          description:'복도에는 서로 다른 방향의 발자국, 문 손잡이의 닳은 흔적, CCTV 사각지대가 남아 있다. 발자국과 손잡이를 비교해 객실 접근 순서를 복원해야 한다.',
           image:'assets/space-corridor.png', unlockedBy:'puzzle_photo_order', clueIds:['corridor_steps','corridor_handle'], puzzleId:'puzzle_corridor_route',
-          hint:'문 손잡이를 먼저 건드린 사람과 젖은 바닥을 남긴 사람은 다를 수 있다. 발자국의 겹침 순서를 떠올려보자.'
+          hint:'문 손잡이를 먼저 건드린 사람과 젖은 바닥을 남긴 사람은 다를 수 있다. 발자국의 겹침 순서를 떠올려보자.',
+          hotspots:[{clueId:'corridor_steps',x:45,y:74,label:'발자국'},{clueId:'corridor_handle',x:78,y:48,label:'손잡이'}]
         },
         {
           id:'lounge', name:'VIP 라운지', short:'화려한 파티의 잔향 속에 컵과 좌석이 남아 있다.',
-          description:'행사가 끝난 뒤의 VIP 라운지에는 컵받침, 좌석 배치, 남겨진 유리잔이 사건 전의 마지막 대화를 가리키고 있다. 누구의 컵이 피해자에게 건네졌는지를 추적해야 한다.',
+          description:'행사가 끝난 뒤의 VIP 라운지에는 컵받침, 좌석 배치, 남겨진 유리잔이 사건 전의 마지막 대화를 가리킨다. 컵과 좌석 배치를 대조해 강하나의 접근 가능성을 확인하라.',
           image:'assets/space-lounge.png', unlockedBy:'puzzle_corridor_route', clueIds:['lounge_cups','lounge_seats'], puzzleId:'puzzle_cup_owner',
-          hint:'컵의 위치만 보지 말고 누가 어느 좌석에서 가장 자연스럽게 피해자에게 접근할 수 있었는지를 생각해보자.'
+          hint:'컵의 위치만 보지 말고 누가 어느 좌석에서 가장 자연스럽게 피해자에게 접근할 수 있었는지를 생각해보자.',
+          hotspots:[{clueId:'lounge_cups',x:55,y:64,label:'컵'},{clueId:'lounge_seats',x:30,y:55,label:'좌석표'}]
         },
         {
           id:'medical', name:'의료실', short:'차갑게 정돈된 약품과 기록이 숨은 개입을 드러낸다.',
-          description:'의료실은 사건의 직접적인 폭력이 아닌, 더 이전에 준비된 조건을 드러낸다. 누락된 약품과 기록표의 조합은 누군가 피해자의 몸 상태를 취약하게 만들었음을 시사한다.',
+          description:'의료실은 사건의 직접적인 폭력이 아닌, 더 이전에 준비된 조건을 드러낸다. 누락된 약품이 죽음의 조건을 만들었는지 확인해야 한다.',
           image:'assets/space-medical.png', unlockedBy:'puzzle_cup_owner', clueIds:['medical_log','medical_missing'], puzzleId:'puzzle_medical_unlock',
-          hint:'기록표의 보관함 번호와 누락된 약물 코드를 연결하자. 약물은 치명상이 아니라 호흡을 약화시키는 조건이다.'
+          hint:'기록표의 보관함 번호와 누락된 약물 코드를 연결하자. 약물은 치명상이 아니라 호흡을 약화시키는 조건이다.',
+          hotspots:[{clueId:'medical_log',x:38,y:52,label:'기록표'},{clueId:'medical_missing',x:70,y:44,label:'보관함'}]
         },
         {
           id:'office', name:'업무 공간', short:'서류와 감시 기록 속에 또 다른 동기가 숨어 있다.',
-          description:'업무 공간에는 협박 메모, 내부 문서, 감시 화면 기록이 남아 있다. 이곳에서는 C가 단순 신고자가 아니라 오래된 압박 관계 속에 있었다는 사실이 드러난다.',
+          description:'업무 공간에는 협박 메모, 내부 문서, 감시 화면 기록이 남아 있다. 찢어진 문서와 내부 메일을 복구해 황세준이 숨긴 압박 관계를 밝혀라.',
           image:'assets/space-office.png', unlockedBy:'puzzle_medical_unlock', clueIds:['office_memo','office_email'], puzzleId:'puzzle_document_restore',
-          hint:'문장 조각은 시간 흐름대로 이어진다. 요구 → 압박 → 침묵 강요의 순서를 떠올려 보자.'
+          hint:'문장 조각은 시간 흐름대로 이어진다. 요구 → 압박 → 침묵 강요의 순서를 떠올려 보자.',
+          hotspots:[{clueId:'office_memo',x:47,y:69,label:'메모'},{clueId:'office_email',x:72,y:39,label:'내부 메일'}]
         },
         {
           id:'cabin', name:'피해자 객실', short:'호출 장치와 물리적 흔적이 마지막 진실을 모은다.',
-          description:'피해자 객실에는 무너진 침구, 호출 장치 로그, 환기 상태, 깨진 컵이 남아 있다. 이 공간은 사건의 마지막 단계와 구조적 공모를 완성하는 장소다.',
+          description:'피해자 객실에는 무너진 침구, 호출 장치 로그, 환기 상태, 깨진 컵이 남아 있다. 호출 장치 기록과 현장 흔적을 종합해 마지막 개입자를 밝혀야 한다.',
           image:'assets/space-cabin.png', unlockedBy:'puzzle_document_restore', clueIds:['cabin_calllog','cabin_scene'], puzzleId:'puzzle_calllog_compare', finalPuzzleId:'puzzle_final_timeline',
-          hint:'호출 차단 시각과 사진 속 시각을 나란히 놓아보자. 누군가는 조건을 만들었고, 누군가는 직접 충돌했고, 누군가는 살릴 기회를 막았다.'
+          hint:'호출 차단 시각과 사진 속 시각을 나란히 놓아보자. 이름의 작은 힌트는 보조 단서일 뿐, 확신은 기록에서 찾아야 한다.',
+          hotspots:[{clueId:'cabin_calllog',x:77,y:51,label:'호출 장치'},{clueId:'cabin_scene',x:50,y:64,label:'침구 흔적'}]
         }
       ],
       clues: {
-        deck_photo:{id:'deck_photo',title:'사진 원본 묶음',location:'갑판',type:'사진 단서',image:'assets/clue-photo.png',summary:'김민형이 촬영한 원본 사진들에는 갑판, 선체, 난간, 멀리 보이는 복도 창문이 찍혀 있다.',detail:'사진 묶음 중 일부는 행사 홍보용으로 보이지만, 22:19 이후 사진에는 복도 쪽 유리창과 객실 방향의 불빛 변화가 함께 포착되어 있다. 이는 공식 발견 이전에도 누군가 객실 인근을 드나들었음을 암시한다.'},
-        deck_time:{id:'deck_time',title:'촬영 시각 메모',location:'갑판',type:'기록 단서',image:'assets/clue-photo.png',summary:'카메라 EXIF 시각을 옮겨 적은 메모. 22:19, 22:24, 22:31, 22:35가 핵심이다.',detail:'메모를 보면 가장 늦은 사진이 신고 직전의 시간대와 맞물린다. 특히 22:31 사진은 누군가 복도 쪽에서 빠르게 사라지는 실루엣을 남기고 있다.'},
-        corridor_steps:{id:'corridor_steps',title:'복도 발자국 흔적',location:'복도',type:'물리 단서',image:'assets/clue-photo.png',summary:'젖은 카펫에 남은 발자국은 세 사람의 이동이 한 방향으로만 이어지지 않았음을 보여준다.',detail:'발자국은 객실로 향한 흔적과 복도 끝으로 빠져나간 흔적이 섞여 있다. 가장 먼저 들어간 사람은 조심스럽게 들어갔고, 두 번째 인물은 더 급하게 이동했으며, 마지막 인물은 객실 앞에서 잠시 멈춘 흔적을 남겼다.'},
-        corridor_handle:{id:'corridor_handle',title:'문 손잡이 흔적',location:'복도',type:'물리 단서',image:'assets/clue-evidence.png',summary:'손잡이의 지문 패턴과 닳은 방향이 서로 다르다.',detail:'손잡이에는 안쪽으로 강하게 밀어 연 흔적과 다시 급하게 잡아당긴 흔적이 동시에 남아 있다. 단순히 한 사람만 출입했다면 나오기 힘든 패턴이다.'},
-        lounge_cups:{id:'lounge_cups',title:'컵 위치와 얼룩',location:'VIP 라운지',type:'배치 단서',image:'assets/clue-evidence.png',summary:'피해자의 컵에는 라운지의 특정 원형 테이블과 같은 받침 자국이 남아 있다.',detail:'테이블 위 컵 위치를 비교하면 피해자의 컵은 원래 피해자 앞이 아니라 A의 동선과 가장 가까운 위치에서 옮겨졌을 가능성이 높다. 컵 테두리에는 약한 잔흔이 남아 있다.'},
-        lounge_seats:{id:'lounge_seats',title:'좌석 배치도',location:'VIP 라운지',type:'배치 단서',image:'assets/clue-evidence.png',summary:'VIP 행사 좌석 배치도에는 A, B, C와 피해자의 거리 관계가 명확히 나타난다.',detail:'피해자는 창가 쪽 좌석에 앉았고, A는 바로 옆 테이블 라인에서 이동이 가능했다. B는 행사 종료 후 뒤늦게 라운지에 들어왔고, C는 마지막 정리 동선을 이유로 주변에 남아 있었다.'},
-        medical_log:{id:'medical_log',title:'약품 보관 기록',location:'의료실',type:'문서 단서',image:'assets/clue-evidence.png',summary:'약품 보관 기록에는 특정 진정제와 호흡억제성 약물이 같은 구역에 묶여 있다.',detail:'기록표를 보면 사용 기록이 없는 약물이 보관함 C-17에서 누락되어 있다. 이는 치명적인 독이 아니라, 타인의 작은 폭력을 더 치명적으로 만들 수 있는 조건성 개입을 의미한다.'},
-        medical_missing:{id:'medical_missing',title:'누락된 약물 보고',location:'의료실',type:'문서 단서',image:'assets/clue-evidence.png',summary:'누락 보고서는 삭제되려다 복구된 흔적이 있다.',detail:'삭제 로그를 복구한 결과, 약물 이름 일부와 보관함 번호가 남아 있었다. 누군가 사건 후 흔적을 지우려 했다는 뜻이다.'},
-        office_memo:{id:'office_memo',title:'찢어진 협박 메모',location:'업무 공간',type:'문서 단서',image:'assets/clue-evidence.png',summary:'메모 조각에는 피해자가 C를 압박해온 흔적이 남아 있다.',detail:'문장을 복구하면 “이번에도 침묵하지 않으면 네 기록을 공개하겠다”는 취지의 협박 문장이 완성된다. C가 단순한 목격자가 아니었을 가능성이 커진다.'},
-        office_email:{id:'office_email',title:'내부 자료 출력본',location:'업무 공간',type:'디지털 단서',image:'assets/clue-evidence.png',summary:'피해자의 회사 내부 분쟁 자료와 행사 협찬 문서가 섞여 있다.',detail:'출력본에는 A의 제약회사 관련 접점, C가 겪은 압박, 행사 당일 보안 인력 이동 요청이 함께 포함되어 있다. 누군가의 감정적 폭발만으로 설명되기 어려운 구조다.'},
-        cabin_calllog:{id:'cabin_calllog',title:'호출 장치 기록',location:'피해자 객실',type:'기록 단서',image:'assets/clue-evidence.png',summary:'호출 장치에는 22:27 신호 시도, 22:31 차단, 22:35 외부 신고 기록이 남아 있다.',detail:'기록을 보면 피해자는 22:27 무렵 도움을 요청하려 했으나, 22:31에 호출 장치가 물리적으로 차단되었다. 그런데 공식 신고는 22:35에야 이루어졌다.'},
-        cabin_scene:{id:'cabin_scene',title:'객실 물리 흔적',location:'피해자 객실',type:'현장 단서',image:'assets/clue-photo.png',summary:'침대, 환기구, 깨진 유리잔, 침구의 방향이 사망 전후의 움직임을 말해준다.',detail:'현장은 단순 타살처럼 보이지만, 침구의 구겨진 방향과 환기 상태를 보면 피해자는 이미 약해진 상태였다. 이어진 직접 충돌과 호출 차단이 마지막 단계를 완성했다.'}
+        deck_photo:{id:'deck_photo',title:'사진 원본 묶음',location:'갑판',type:'사진 단서',image:'assets/clue-photo.png',suspect:null,summary:'김민형이 촬영한 원본 사진들에는 갑판, 선체, 난간, 멀리 보이는 복도 창문이 찍혀 있다.',detail:'사진 묶음 중 일부는 행사 홍보용으로 보이지만, 22:19 이후 사진에는 복도 쪽 유리창과 객실 방향의 불빛 변화가 함께 포착되어 있다. 이는 공식 발견 이전에도 누군가 객실 인근을 드나들었음을 암시한다.'},
+        deck_time:{id:'deck_time',title:'촬영 시각 메모',location:'갑판',type:'기록 단서',image:'assets/clue-photo.png',suspect:null,summary:'카메라 EXIF 시각을 옮겨 적은 메모. 22:19, 22:24, 22:31, 22:35가 핵심이다.',detail:'메모를 보면 가장 늦은 사진이 신고 직전의 시간대와 맞물린다. 특히 22:31 사진은 누군가 복도 쪽에서 빠르게 사라지는 실루엣을 남기고 있다.'},
+        corridor_steps:{id:'corridor_steps',title:'복도 발자국 흔적',location:'복도',type:'물리 단서',image:'assets/clue-photo.png',suspect:'lee',summary:'젖은 카펫에 남은 발자국은 세 사람의 이동이 한 방향으로만 이어지지 않았음을 보여준다.',detail:'발자국은 객실로 향한 흔적과 복도 끝으로 빠져나간 흔적이 섞여 있다. 가장 먼저 들어간 사람은 조심스럽게 들어갔고, 두 번째 인물은 더 급하게 이동했으며, 마지막 인물은 객실 앞에서 잠시 멈춘 흔적을 남겼다.'},
+        corridor_handle:{id:'corridor_handle',title:'문 손잡이 흔적',location:'복도',type:'물리 단서',image:'assets/clue-evidence.png',suspect:'lee',summary:'손잡이의 지문 패턴과 닳은 방향이 서로 다르다.',detail:'손잡이에는 안쪽으로 강하게 밀어 연 흔적과 다시 급하게 잡아당긴 흔적이 동시에 남아 있다. 단순히 한 사람만 출입했다면 나오기 힘든 패턴이다.'},
+        lounge_cups:{id:'lounge_cups',title:'컵 위치와 얼룩',location:'VIP 라운지',type:'배치 단서',image:'assets/clue-evidence.png',suspect:'kang',summary:'피해자의 컵에는 라운지의 특정 원형 테이블과 같은 받침 자국이 남아 있다.',detail:'테이블 위 컵 위치를 비교하면 피해자의 컵은 원래 피해자 앞이 아니라 강하나의 동선과 가장 가까운 위치에서 옮겨졌을 가능성이 높다. 컵 테두리에는 약한 잔흔이 남아 있다.'},
+        lounge_seats:{id:'lounge_seats',title:'좌석 배치도',location:'VIP 라운지',type:'배치 단서',image:'assets/clue-evidence.png',suspect:'kang',summary:'VIP 행사 좌석 배치도에는 강하나, 이민정, 황세준과 피해자의 거리 관계가 명확히 나타난다.',detail:'피해자는 창가 쪽 좌석에 앉았고, 강하나는 바로 옆 테이블 라인에서 이동이 가능했다. 이민정은 행사 종료 후 뒤늦게 라운지에 들어왔고, 황세준은 마지막 정리 동선을 이유로 주변에 남아 있었다.'},
+        medical_log:{id:'medical_log',title:'약품 보관 기록',location:'의료실',type:'문서 단서',image:'assets/clue-evidence.png',suspect:'kang',summary:'약품 보관 기록에는 특정 진정제와 호흡억제성 약물이 같은 구역에 묶여 있다.',detail:'기록표를 보면 사용 기록이 없는 약물이 보관함 C-17에서 누락되어 있다. 이는 치명적인 독이 아니라, 타인의 작은 폭력을 더 치명적으로 만들 수 있는 조건성 개입을 의미한다.'},
+        medical_missing:{id:'medical_missing',title:'누락된 약물 보고',location:'의료실',type:'문서 단서',image:'assets/clue-evidence.png',suspect:'kang',summary:'누락 보고서는 삭제되려다 복구된 흔적이 있다.',detail:'삭제 로그를 복구한 결과, 약물 이름 일부와 보관함 번호가 남아 있었다. 누군가 사건 후 흔적을 지우려 했다는 뜻이다.'},
+        office_memo:{id:'office_memo',title:'찢어진 협박 메모',location:'업무 공간',type:'문서 단서',image:'assets/clue-evidence.png',suspect:'hwang',summary:'메모 조각에는 피해자가 황세준을 압박해온 흔적이 남아 있다.',detail:'문장을 복구하면 “이번에도 침묵하지 않으면 네 기록을 공개하겠다”는 취지의 협박 문장이 완성된다. 황세준이 단순한 목격자가 아니었을 가능성이 커진다.'},
+        office_email:{id:'office_email',title:'내부 자료 출력본',location:'업무 공간',type:'디지털 단서',image:'assets/clue-evidence.png',suspect:'hwang',summary:'피해자의 회사 내부 분쟁 자료와 행사 협찬 문서가 섞여 있다.',detail:'출력본에는 강하나의 제약회사 관련 접점, 황세준이 겪은 압박, 행사 당일 보안 인력 이동 요청이 함께 포함되어 있다. 누군가의 감정적 폭발만으로 설명되기 어려운 구조다.'},
+        cabin_calllog:{id:'cabin_calllog',title:'호출 장치 기록',location:'피해자 객실',type:'기록 단서',image:'assets/clue-evidence.png',suspect:'hwang',summary:'호출 장치에는 22:27 신호 시도, 22:31 차단, 22:35 외부 신고 기록이 남아 있다.',detail:'기록을 보면 피해자는 22:27 무렵 도움을 요청하려 했으나, 22:31에 호출 장치가 물리적으로 차단되었다. 그런데 공식 신고는 22:35에야 이루어졌다.'},
+        cabin_scene:{id:'cabin_scene',title:'객실 물리 흔적',location:'피해자 객실',type:'현장 단서',image:'assets/clue-photo.png',suspect:'lee',summary:'침대, 환기구, 깨진 유리잔, 침구의 방향이 사망 전후의 움직임을 말해준다.',detail:'현장은 단순 타살처럼 보이지만, 침구의 구겨진 방향과 환기 상태를 보면 피해자는 이미 약해진 상태였다. 이어진 직접 충돌과 호출 차단이 마지막 단계를 완성했다.'}
       },
       puzzles: {
         puzzle_photo_order:{id:'puzzle_photo_order',spaceId:'deck',type:'order',title:'사진의 시간 맞추기',prompt:'네 장의 사진을 시간 순서대로 배열하라. 가장 이른 사진부터 가장 늦은 사진까지 맞춰야 복도 조사 권한이 열린다.',items:[{id:'p4',label:'22:35 · 신고 직전의 갑판',note:'가장 늦은 사진'},{id:'p1',label:'22:19 · 행사 초반의 갑판',note:'가장 이른 사진'},{id:'p3',label:'22:31 · 실루엣이 지나가는 사진',note:'공식 발견 직전'},{id:'p2',label:'22:24 · 복도 쪽 불빛이 보이는 사진',note:'중간 시점'}],answer:['p1','p2','p3','p4'],success:'사진 시간 정렬에 성공했다. 복도 조사 권한이 열렸다.'},
-        puzzle_corridor_route:{id:'puzzle_corridor_route',spaceId:'corridor',type:'sequence-select',title:'복도 동선 복원',prompt:'A, B, C 중 누가 먼저 객실에 접근했고, 누가 그다음, 누가 마지막으로 접근했는지 순서를 복원하라.',options:['A','B','C'],answer:['A','B','C'],success:'동선 복원에 성공했다. A → B → C의 순서가 라운지 단서와 연결된다.'},
-        puzzle_cup_owner:{id:'puzzle_cup_owner',spaceId:'lounge',type:'single-choice',title:'컵의 주인 찾기',prompt:'피해자에게 가장 자연스럽게 접근해 컵을 건넬 수 있었던 사람은 누구인가?',choices:[{value:'A',label:'A · 피해자 옆 테이블 라인에 앉아 있었다'},{value:'B',label:'B · 행사 종료 후 뒤늦게 라운지에 진입했다'},{value:'C',label:'C · 정리 동선으로 주변에 머물렀다'}],answer:'A',success:'좌석과 컵의 동선을 연결했다. 의료실 단서가 열렸다.'},
+        puzzle_corridor_route:{id:'puzzle_corridor_route',spaceId:'corridor',type:'sequence-select',title:'복도 동선 복원',prompt:'강하나, 이민정, 황세준 중 누가 먼저 객실에 접근했고, 누가 그다음, 누가 마지막으로 접근했는지 순서를 복원하라.',options:['강하나','이민정','황세준'],answer:['강하나','이민정','황세준'],success:'동선 복원에 성공했다. 강하나 → 이민정 → 황세준의 순서가 라운지 단서와 연결된다.'},
+        puzzle_cup_owner:{id:'puzzle_cup_owner',spaceId:'lounge',type:'single-choice',title:'컵의 주인 찾기',prompt:'피해자에게 가장 자연스럽게 접근해 컵을 건넬 수 있었던 사람은 누구인가?',choices:[{value:'강하나',label:'강하나 · 피해자 옆 테이블 라인에 앉아 있었다'},{value:'이민정',label:'이민정 · 행사 종료 후 뒤늦게 라운지에 진입했다'},{value:'황세준',label:'황세준 · 정리 동선으로 주변에 머물렀다'}],answer:'강하나',success:'좌석과 컵의 동선을 연결했다. 의료실 단서가 열렸다.'},
         puzzle_medical_unlock:{id:'puzzle_medical_unlock',spaceId:'medical',type:'code-input',title:'약품 보관함 해금',prompt:'기록표의 보관함 번호와 누락 보고를 조합해 보관함 코드를 입력하라. 정답은 세 자리다.',answer:'317',success:'보관함이 열리며 누락 약물 기록이 확인되었다. 업무 공간 조사 권한이 열린다.'},
-        puzzle_document_restore:{id:'puzzle_document_restore',spaceId:'office',type:'order',title:'협박 문서 복구',prompt:'찢어진 문장 조각을 자연스러운 흐름으로 이어 C에게 가해진 압박의 구조를 복구하라.',items:[{id:'d2',label:'“이번 협찬 건도 조용히 넘기고”',note:'중간 조각'},{id:'d1',label:'“네 기록을 공개하고 싶지 않다면”',note:'도입'},{id:'d3',label:'“아무 말도 하지 말아라”',note:'결론'}],answer:['d1','d2','d3'],success:'문서를 복구했다. C의 동기와 압박 관계가 드러나며 피해자 객실 조사 권한이 열린다.'},
+        puzzle_document_restore:{id:'puzzle_document_restore',spaceId:'office',type:'order',title:'협박 문서 복구',prompt:'찢어진 문장 조각을 자연스러운 흐름으로 이어 황세준에게 가해진 압박의 구조를 복구하라.',items:[{id:'d2',label:'“이번 협찬 건도 조용히 넘기고”',note:'중간 조각'},{id:'d1',label:'“네 기록을 공개하고 싶지 않다면”',note:'도입'},{id:'d3',label:'“아무 말도 하지 말아라”',note:'결론'}],answer:['d1','d2','d3'],success:'문서를 복구했다. 황세준의 동기와 압박 관계가 드러나며 피해자 객실 조사 권한이 열린다.'},
         puzzle_calllog_compare:{id:'puzzle_calllog_compare',spaceId:'cabin',type:'single-choice',title:'호출 장치 시간 대조',prompt:'호출 장치 로그와 사진 시각을 비교했을 때 가장 핵심적인 진술 붕괴는 무엇인가?',choices:[{value:'X',label:'피해자는 신고보다 늦게 쓰러졌다'},{value:'Y',label:'도움 요청 시도는 공식 신고보다 먼저 있었고, 누군가 호출을 차단했다'},{value:'Z',label:'호출 장치는 처음부터 고장 나 있었다'}],answer:'Y',success:'호출 장치 기록의 의미를 파악했다. 최종 타임라인 퍼즐이 열렸다.'},
-        puzzle_final_timeline:{id:'puzzle_final_timeline',spaceId:'cabin',type:'order',title:'최종 타임라인 퍼즐',prompt:'A의 선행 행동, B의 직접적 충돌, C의 마지막 개입을 올바른 시간 순서대로 배열하라.',items:[{id:'t3',label:'C가 호출 장치를 차단하고 신고를 지연한다',note:'살릴 가능성의 차단'},{id:'t1',label:'A가 피해자의 몸 상태를 취약하게 만든다',note:'죽음의 조건 형성'},{id:'t2',label:'B가 객실에서 직접적인 충돌을 일으킨다',note:'죽음을 가속'}],answer:['t1','t2','t3'],success:'최종 타임라인을 완성했다. 진엔딩 보고서를 작성할 수 있다.'}
-      },
-      endings: {
-        generalA:{title:'일반 엔딩 · 설계된 조건',body:'당신은 A를 주요 책임자로 지목했다. 의료실 기록과 라운지 단서로 볼 때, A는 피해자의 몸 상태를 미리 취약하게 만든 인물이다. 사건은 표면적으로 해결된 듯 보이지만, 직접적인 충돌과 마지막 구조 차단의 책임은 아직 완전히 밝혀지지 않았다.'},
-        generalB:{title:'일반 엔딩 · 직접적인 충돌',body:'당신은 B를 주요 책임자로 지목했다. 복도 동선과 객실 흔적으로 볼 때, B는 객실에서 가장 강한 직접 충돌을 일으킨 인물이다. 하지만 왜 그 충돌이 곧 죽음으로 이어졌는지, 그리고 구조 요청이 왜 무효화되었는지는 여전히 어둠 속에 남아 있다.'},
-        generalC:{title:'일반 엔딩 · 침묵의 공범',body:'당신은 C를 주요 책임자로 지목했다. 호출 장치 차단과 신고 지연은 분명 치명적인 결과를 낳았다. 그러나 C가 왜 그런 선택을 했는지, 사건 이전에 어떤 압박을 받아왔는지까지 완전히 설명되지는 않는다. 죽음의 구조 전체는 아직 닫히지 않았다.'},
-        true:{title:'진엔딩 · 침묵의 항로',body:'이 사건은 한 명의 범행으로 완성된 죽음이 아니었다. A는 죽음의 조건을 만들었고, B는 직접적인 충돌로 죽음을 가속했으며, C는 살릴 수 있었던 가능성을 차단했다. 서로 다른 동기와 두려움, 분노와 침묵이 한 사람의 죽음을 완성했다. 당신은 단순한 범인 찾기를 넘어, 이 죽음이 어떤 순서와 구조로 완성되었는지 끝내 증명해냈다.'}
+        puzzle_final_timeline:{id:'puzzle_final_timeline',spaceId:'cabin',type:'order',title:'최종 타임라인 퍼즐',prompt:'강하나의 선행 행동, 이민정의 직접적 충돌, 황세준의 마지막 개입을 올바른 시간 순서대로 배열하라.',items:[{id:'t3',label:'황세준이 호출 장치를 차단하고 신고를 지연한다',note:'살릴 가능성의 차단'},{id:'t1',label:'강하나가 피해자의 몸 상태를 취약하게 만든다',note:'죽음의 조건 형성'},{id:'t2',label:'이민정이 객실에서 직접적인 충돌을 일으킨다',note:'죽음을 가속'}],answer:['t1','t2','t3'],success:'최종 타임라인을 완성했다. 최종 보고서를 작성할 수 있다.'}
       }
     };
 
@@ -683,7 +802,8 @@
       currentSpaceId:'deck',
       unlockedSpaces:new Set(['deck']),
       foundClues:new Set(),
-      solvedPuzzles:new Set()
+      solvedPuzzles:new Set(),
+      reportTimelineChoice:null
     };
     const $ = (id) => document.getElementById(id);
     const els = {};
@@ -702,7 +822,7 @@
       document.querySelectorAll('[data-start-game]').forEach(btn => btn.addEventListener('click', startGame));
       document.querySelectorAll('[data-back-home]').forEach(btn => btn.addEventListener('click', backHome));
 
-      ['spaceList','spaceVisual','spaceName','spaceShort','spaceTitle','spaceDescription','currentGoal','currentSpaceBadge','clueGrid','clueCounter','puzzleCard','puzzleStatus','progressFill','progressText','foundClueText','foundClues','solvedPuzzleText','solvedPuzzles','memoBox','clueModal','clueModalTitle','clueModalMeta','clueModalImage','clueModalBody','puzzleModal','puzzleModalTitle','puzzleModalMeta','puzzleModalContent','reportModal','reportOptions','endingModal','endingTitle','endingBody','hintModal','hintBody','reportBtn','hintBtn'].forEach(id => els[id] = $(id));
+      ['spaceList','spaceVisual','spaceName','spaceShort','spaceTitle','spaceDescription','currentGoal','currentSpaceBadge','currentProgressBadge','hotspotLayer','clueGrid','clueCounter','puzzleCard','puzzleStatus','progressFill','progressText','foundClueText','foundClues','solvedPuzzleText','solvedPuzzles','memoBox','suspectList','statementList','clueModal','clueModalTitle','clueModalMeta','clueModalImage','clueModalBody','puzzleModal','puzzleModalTitle','puzzleModalMeta','puzzleModalContent','reportModal','reportOptions','endingModal','endingPanel','endingTitle','endingReportImage','endingBody','endingActions','hintModal','hintBody','reportBtn','hintBtn'].forEach(id => els[id] = $(id));
 
       document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.close)));
       document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal.id); }));
@@ -714,6 +834,7 @@
     });
 
     function startGame(){
+      resetGame();
       $('landingView').classList.add('hidden');
       $('gameView').classList.remove('hidden');
       window.scrollTo({top:0, behavior:'smooth'});
@@ -722,6 +843,20 @@
     function backHome(){
       $('gameView').classList.add('hidden');
       $('landingView').classList.remove('hidden');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function resetGame(){
+      state.currentSpaceId='deck';
+      state.unlockedSpaces=new Set(['deck']);
+      state.foundClues=new Set();
+      state.solvedPuzzles=new Set();
+      state.reportTimelineChoice=null;
+      refreshState();
+    }
+    function restartInvestigation(){
+      closeModal('endingModal');
+      resetGame();
+      renderAll();
       window.scrollTo({top:0, behavior:'smooth'});
     }
     function refreshState(){
@@ -753,18 +888,33 @@
       els.spaceDescription.textContent=space.description;
       els.currentSpaceBadge.textContent=`현재 공간: ${space.name}`;
       els.currentGoal.textContent=getGoal(space);
+      renderHotspots(space);
       renderClues(space);
       renderPuzzleCard(space);
+    }
+    function renderHotspots(space){
+      els.hotspotLayer.innerHTML='';
+      (space.hotspots || []).forEach(h => {
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='hotspot' + (state.foundClues.has(h.clueId) ? ' found' : '');
+        btn.style.left=h.x + '%';
+        btn.style.top=h.y + '%';
+        btn.dataset.label=h.label;
+        btn.setAttribute('aria-label', h.label);
+        btn.addEventListener('click',()=>openClue(h.clueId));
+        els.hotspotLayer.appendChild(btn);
+      });
     }
     function getGoal(space){
       const allClues=space.clueIds.every(id=>state.foundClues.has(id));
       const firstSolved=state.solvedPuzzles.has(space.puzzleId);
       const finalSolved=!space.finalPuzzleId || state.solvedPuzzles.has(space.finalPuzzleId);
-      if(!allClues) return `${space.name}의 조사 가능한 단서를 모두 확인하라.`;
+      if(!allClues) return `${space.name}의 조사 포인트를 눌러 단서를 모두 확인하라.`;
       if(!firstSolved) return `${GAME_DATA.puzzles[space.puzzleId].title} 퍼즐을 해결하라.`;
       if(space.finalPuzzleId && !finalSolved) return `${GAME_DATA.puzzles[space.finalPuzzleId].title} 퍼즐을 해결해 죽음의 구조를 완성하라.`;
       if(space.id!=='cabin') return `다음 공간이 해금되었다. 왼쪽 공간 이동 패널에서 이동하라.`;
-      return `최종 보고서를 열어 일반 엔딩 또는 진엔딩을 확인하라.`;
+      return `최종 보고서를 작성하라. 한 명만 지목하면 실패하며, 세 사람의 역할과 순서를 모두 맞혀야 한다.`;
     }
     function renderClues(space){
       els.clueGrid.innerHTML='';
@@ -783,10 +933,11 @@
     function openClue(id){
       const clue=GAME_DATA.clues[id];
       state.foundClues.add(id);
+      const suspect = clue.suspect ? GAME_DATA.suspects[clue.suspect] : null;
       els.clueModalTitle.textContent=clue.title;
-      els.clueModalMeta.textContent=`${clue.location} · ${clue.type}`;
-      els.clueModalImage.style.backgroundImage=`linear-gradient(180deg, rgba(6,12,20,.1), rgba(6,12,20,.25)), url('${clue.image}')`;
-      els.clueModalBody.innerHTML=`<p><strong>${clue.summary}</strong></p><p>${clue.detail}</p>`;
+      els.clueModalMeta.textContent=`${clue.location} · ${clue.type}${suspect ? ' · 관련 인물: ' + suspect.name : ''}`;
+      els.clueModalImage.style.backgroundImage=`linear-gradient(180deg, rgba(6,12,20,.1), rgba(6,12,20,.25)), url('${suspect ? suspect.image : clue.image}')`;
+      els.clueModalBody.innerHTML=`<p><strong>${clue.summary}</strong></p><p>${clue.detail}</p>${suspect ? `<p><strong>관련 인물 진술:</strong> ${suspect.statement}</p>` : ''}`;
       openModal('clueModal');
       renderAll();
     }
@@ -941,7 +1092,9 @@
     function renderSidebar(){
       const found=Array.from(state.foundClues).map(id=>GAME_DATA.clues[id]);
       const solved=Array.from(state.solvedPuzzles).map(id=>GAME_DATA.puzzles[id]);
-      els.foundClues.innerHTML=found.length ? found.map(item=>`<li><strong>${item.title}</strong><small>${item.location} · ${item.summary}</small></li>`).join('') : '<li>아직 발견한 단서가 없습니다.<small>공간의 단서를 눌러 조사하세요.</small></li>';
+      renderSuspects();
+      renderStatements();
+      els.foundClues.innerHTML=found.length ? found.map(item=>`<li><strong>${item.title}</strong><small>${item.location} · ${item.summary}</small></li>`).join('') : '<li>아직 발견한 단서가 없습니다.<small>공간 이미지의 붉은 조사 포인트를 눌러 조사하세요.</small></li>';
       els.solvedPuzzles.innerHTML=solved.length ? solved.map(item=>`<li><strong>${item.title}</strong><small>${item.success}</small></li>`).join('') : '<li>아직 해결한 퍼즐이 없습니다.<small>단서를 모두 모은 뒤 퍼즐에 도전하세요.</small></li>';
       els.foundClueText.textContent=`${found.length}개`;
       els.solvedPuzzleText.textContent=`${solved.length}개`;
@@ -949,15 +1102,36 @@
       const progress=Math.round(((found.length+solved.length)/total)*100);
       els.progressFill.style.width=`${progress}%`;
       els.progressText.textContent=`${progress}%`;
+      els.currentProgressBadge.textContent=`단서 ${found.length} / ${Object.keys(GAME_DATA.clues).length}`;
       els.memoBox.textContent=buildMemo();
     }
+    function renderSuspects(){
+      els.suspectList.innerHTML=Object.values(GAME_DATA.suspects).map(s=>`
+        <article class="suspect-card">
+          <div class="suspect-img" style="background-image:url('${s.image}')"></div>
+          <div>
+            <h4>${s.name}</h4>
+            <p>${s.role}</p>
+            <p>${s.profile}</p>
+          </div>
+        </article>
+      `).join('');
+    }
+    function renderStatements(){
+      els.statementList.innerHTML=Object.values(GAME_DATA.suspects).map(s=>`
+        <article class="statement-card">
+          <div class="mini-img" style="background-image:url('${s.image}')"></div>
+          <div><strong>${s.name}</strong><p>${s.statement}</p></div>
+        </article>
+      `).join('');
+    }
     function buildMemo(){
-      if(state.solvedPuzzles.has('puzzle_final_timeline')) return 'A는 조건을 만들었고, B는 죽음을 가속했으며, C는 구조 가능성을 차단했다. 이제 보고서에서 결론을 고르자.';
+      if(state.solvedPuzzles.has('puzzle_final_timeline')) return '이제 최종 보고서를 작성할 수 있다. 강하나=조건 형성, 이민정=직접 충돌, 황세준=구조 차단을 정확히 증명하라.';
       if(state.solvedPuzzles.has('puzzle_calllog_compare')) return '호출 장치는 도움을 요청한 뒤 누군가에 의해 차단되었다. 남은 것은 세 행위를 하나의 타임라인으로 묶는 일이다.';
-      if(state.solvedPuzzles.has('puzzle_document_restore')) return 'C는 단순 목격자가 아니다. 오래된 압박과 침묵 강요가 마지막 선택에 영향을 주었다.';
+      if(state.solvedPuzzles.has('puzzle_document_restore')) return '황세준은 단순 목격자가 아니다. 오래된 압박과 침묵 강요가 마지막 선택에 영향을 주었다.';
       if(state.solvedPuzzles.has('puzzle_medical_unlock')) return '누락된 약물은 직접 독살이 아니라 취약 조건의 형성이다. 사건은 더 복합적이다.';
-      if(state.solvedPuzzles.has('puzzle_cup_owner')) return 'A가 피해자에게 가장 자연스럽게 컵을 건넬 수 있었다. 이제 약물과 기록을 확인하자.';
-      if(state.solvedPuzzles.has('puzzle_corridor_route')) return '객실 접근 순서는 A → B → C로 보인다. 라운지에서 관계를 확인해보자.';
+      if(state.solvedPuzzles.has('puzzle_cup_owner')) return '강하나가 피해자에게 가장 자연스럽게 컵을 건넬 수 있었다. 이제 약물과 기록을 확인하자.';
+      if(state.solvedPuzzles.has('puzzle_corridor_route')) return '객실 접근 순서는 강하나 → 이민정 → 황세준으로 보인다. 라운지에서 관계를 확인해보자.';
       if(state.solvedPuzzles.has('puzzle_photo_order')) return '22:31의 실루엣은 공식 신고 시각과 맞지 않는다. 복도 기록이 거짓 진술을 무너뜨릴 것이다.';
       return '사진과 기록은 공식 발표보다 사건이 더 일찍 시작되었음을 말하고 있다.';
     }
@@ -967,24 +1141,88 @@
       return first && second;
     }
     function openReportModal(){
-      const trueUnlocked=state.solvedPuzzles.has('puzzle_final_timeline');
+      const unlocked=state.solvedPuzzles.has('puzzle_final_timeline');
+      if(!unlocked){
+        els.reportOptions.innerHTML=`
+          <div class="detail-box">
+            <p><strong>최종 보고서 작성 조건 미충족</strong></p>
+            <p>모든 핵심 단서와 최종 타임라인 퍼즐을 해결해야 보고서를 제출할 수 있습니다.</p>
+          </div>`;
+        openModal('reportModal');
+        return;
+      }
       els.reportOptions.innerHTML=`
-        <button class="report-btn" data-ending="generalA"><strong>A를 주요 책임자로 지목한다</strong><small>죽음의 조건을 만든 책임</small></button>
-        <button class="report-btn" data-ending="generalB"><strong>B를 주요 책임자로 지목한다</strong><small>직접적인 충돌의 책임</small></button>
-        <button class="report-btn" data-ending="generalC"><strong>C를 주요 책임자로 지목한다</strong><small>구조 가능성 차단의 책임</small></button>
-        <button class="report-btn ${trueUnlocked ? '' : 'disabled'}" data-ending="true"><strong>세 명의 관여를 모두 밝힌다</strong><small>${trueUnlocked ? '진엔딩 보고서를 작성한다.' : '최종 타임라인 퍼즐을 해결해야 한다.'}</small></button>
+        <div class="detail-box">
+          <p><strong>보고서 작성:</strong> 각 인물의 역할을 선택하고, 마지막 순서를 확정하세요. 하나라도 틀리면 불완전한 보고서로 처리되어 처음부터 다시 조사해야 합니다.</p>
+        </div>
+        <div class="report-form">
+          <div class="report-row">
+            <label for="roleCondition">1. 죽음의 조건을 만든 인물</label>
+            <select id="roleCondition">${suspectOptions()}</select>
+          </div>
+          <div class="report-row">
+            <label for="roleConflict">2. 직접적인 충돌을 일으킨 인물</label>
+            <select id="roleConflict">${suspectOptions()}</select>
+          </div>
+          <div class="report-row">
+            <label for="roleBlock">3. 구조 가능성을 차단한 인물</label>
+            <select id="roleBlock">${suspectOptions()}</select>
+          </div>
+          <div class="report-row">
+            <label>4. 올바른 순서</label>
+            <div class="timeline-choice">
+              <button type="button" class="choice-btn" data-timeline="correct">강하나 → 이민정 → 황세준</button>
+              <button type="button" class="choice-btn" data-timeline="wrong1">이민정 → 강하나 → 황세준</button>
+              <button type="button" class="choice-btn" data-timeline="wrong2">황세준 → 이민정 → 강하나</button>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn primary" id="submitReportBtn" type="button">보고서 제출</button>
+        </div>
+        <div id="reportFeedback"></div>
       `;
-      els.reportOptions.querySelectorAll('.report-btn').forEach(btn=>{
-        if(btn.dataset.ending==='true' && !trueUnlocked) return;
-        btn.addEventListener('click',()=>showEnding(btn.dataset.ending));
+      state.reportTimelineChoice=null;
+      els.reportOptions.querySelectorAll('[data-timeline]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          state.reportTimelineChoice=btn.dataset.timeline;
+          els.reportOptions.querySelectorAll('[data-timeline]').forEach(b=>b.classList.remove('used'));
+          btn.classList.add('used');
+        });
       });
+      $('submitReportBtn').addEventListener('click', submitFinalReport);
       openModal('reportModal');
     }
-    function showEnding(key){
+    function suspectOptions(){
+      return `<option value="">선택</option>
+        <option value="강하나">강하나</option>
+        <option value="이민정">이민정</option>
+        <option value="황세준">황세준</option>`;
+    }
+    function submitFinalReport(){
+      const condition=$('roleCondition').value;
+      const conflict=$('roleConflict').value;
+      const block=$('roleBlock').value;
+      const ok = condition==='강하나' && conflict==='이민정' && block==='황세준' && state.reportTimelineChoice==='correct';
       closeModal('reportModal');
-      const ending=GAME_DATA.endings[key];
-      els.endingTitle.textContent=ending.title;
-      els.endingBody.textContent=ending.body;
+      showEnding(ok);
+    }
+    function showEnding(success){
+      els.endingPanel.classList.toggle('ending-success', success);
+      els.endingPanel.classList.toggle('ending-fail', !success);
+      if(success){
+        els.endingTitle.textContent='진엔딩 · 진실 규명 완료';
+        els.endingReportImage.src='assets/ending-true-report.png';
+        els.endingBody.innerHTML=`<p>이 사건은 한 명의 범행으로 완성된 죽음이 아니었다.</p><p><strong>강하나</strong>는 죽음의 조건을 만들었고, <strong>이민정</strong>은 직접적인 충돌로 죽음을 가속했으며, <strong>황세준</strong>은 살릴 수 있었던 가능성을 차단했다.</p><p>당신은 단순한 범인 찾기를 넘어, 죽음이 어떤 순서와 구조로 완성되었는지 끝내 증명했다.</p>`;
+        els.endingActions.innerHTML=`<button class="btn primary" type="button" data-back-home-ending>메인으로 돌아가기</button>`;
+        els.endingActions.querySelector('[data-back-home-ending]').addEventListener('click',()=>{closeModal('endingModal');backHome();});
+      }else{
+        els.endingTitle.textContent='실패 엔딩 · 불완전한 보고서';
+        els.endingReportImage.src='assets/ending-fail-report.png';
+        els.endingBody.innerHTML=`<p>당신은 사건의 일부만 보았다.</p><p>이 죽음은 한 사람의 행동만으로 완성되지 않았다. 죽음의 조건, 직접 충돌, 구조 가능성 차단을 모두 밝혀야 한다.</p><p><strong>처음부터 다시 조사해 진엔딩 보고서를 완성하세요.</strong></p>`;
+        els.endingActions.innerHTML=`<button class="btn fail" type="button" data-restart>처음부터 다시 조사하기</button>`;
+        els.endingActions.querySelector('[data-restart]').addEventListener('click', restartInvestigation);
+      }
       openModal('endingModal');
     }
     function openHintModal(){els.hintBody.textContent=getCurrentSpace().hint;openModal('hintModal');}
