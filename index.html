@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>침묵의 항로 | 조사 보드형 웹 방탈출</title>
+  <style>
+    :root{
+      --bg:#030b13;
+      --deep:#06111b;
+      --panel:rgba(4,12,19,.84);
+      --panel2:rgba(7,17,27,.92);
+      --line:rgba(214,169,93,.27);
+      --line2:rgba(214,169,93,.55);
+      --gold:#d6a95d;
+      --gold2:#f1d8a4;
+      --cyan:#48d3df;
+      --cyan2:#1a7580;
+      --red:#cc3d2f;
+      --green:#88dfa8;
+      --text:#f4f1e9;
+      --muted:#aebcc4;
+      --darktext:#17120c;
+      --shadow:0 26px 70px rgba(0,0,0,.52);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+    body{
+      background:
+        radial-gradient(circle at 72% 10%, rgba(72,211,223,.08), transparent 26%),
+        radial-gradient(circle at 18% 15%, rgba(214,169,93,.06), transparent 28%),
+        linear-gradient(180deg,#071522 0%, #02070d 100%);
+    }
+    body::before{
+      content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+      background:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+      background-size:82px 82px;
+      mask-image:linear-gradient(black,transparent 86%);
+    }
+    button,input,select{font:inherit}
+    button{cursor:pointer;color:inherit}
+    a{color:inherit;text-decoration:none}
+    .hidden{display:none!important}
+    .container{width:min(1240px,calc(100% - 32px));margin:0 auto}
+    .glass{background:linear-gradient(180deg,rgba(7,17,27,.82),rgba(2,8,13,.92));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    .btn{
+      min-height:46px;padding:0 16px;border-radius:14px;border:1px solid var(--line);
+      background:rgba(255,255,255,.035);display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      font-weight:800;transition:.18s ease;
+    }
+    .btn:hover{transform:translateY(-2px);border-color:var(--gold2)}
+    .btn.primary{background:linear-gradient(180deg,rgba(16,84,91,.95),rgba(8,46,54,.98));border-color:rgba(72,211,223,.45);box-shadow:0 0 28px rgba(72,211,223,.12)}
+    .btn.gold{background:linear-gradient(180deg,#f0d4a0,#b98943);color:#1d1409;border-color:#f3dbad}
+    .btn.danger{background:linear-gradient(180deg,rgba(126,28,24,.95),rgba(76,16,15,.98));border-color:rgba(255,130,110,.35)}
+    .eyebrow{display:inline-flex;font-size:.76rem;letter-spacing:.14em;font-weight:900;color:#d7f5f8;border:1px solid rgba(72,211,223,.18);background:rgba(72,211,223,.08);padding:7px 10px;border-radius:999px}
+    .page{display:block}
+
+    /* Landing */
+    .site-header{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(3,8,13,.66);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .logo{font-size:1.55rem;font-weight:950;color:var(--gold2)}
+    .nav-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;color:#d9e4eb;font-size:.94rem}
+    .nav-links a:hover{color:var(--gold2)}
+    .hero{min-height:100vh;position:relative;display:flex;align-items:center;padding:116px 0 76px;overflow:hidden}
+    .hero-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,10,.95),rgba(2,6,10,.35) 48%,rgba(2,6,10,.72)),url('assets/hero-cruise.png') center/cover no-repeat;transform:scale(1.02)}
+    .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:180px;background:linear-gradient(transparent,#030b13)}
+    .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr .56fr;gap:22px;align-items:end}
+    .hero-card{padding:34px;border-radius:30px}
+    .hero h1{margin:18px 0 12px;font-size:clamp(3rem,7vw,5.2rem);line-height:1;text-shadow:0 8px 30px #000}
+    .hero .lead{font-size:clamp(1.2rem,2.2vw,1.6rem);color:var(--gold2);font-weight:850;line-height:1.58}
+    .hero p{color:#d5e1e8;line-height:1.86}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+    .case-card{padding:26px;border-radius:28px}
+    .case-card h3{margin:0 0 18px;color:var(--gold2)}
+    .case-card dl{display:grid;gap:12px;margin:0}
+    .case-card div{padding:14px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(214,169,93,.11)}
+    .case-card dt{font-size:.83rem;color:var(--muted);margin-bottom:6px}
+    .case-card dd{margin:0;font-weight:800;line-height:1.55}
+    .section{padding:78px 0}
+    .section-head{text-align:center;margin-bottom:30px}
+    .section-head h2{margin:12px 0 0;color:var(--gold2);font-size:clamp(2rem,4vw,2.55rem)}
+    .trailer-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:24px;align-items:center}
+    .section-copy h2{color:var(--gold2);font-size:2.2rem;margin:12px 0}
+    .section-copy p{line-height:1.9;color:var(--muted)}
+    .trailer{border-radius:28px;padding:14px}
+    .trailer video{display:block;width:100%;border-radius:20px;background:#000;border:1px solid rgba(255,255,255,.08)}
+    .preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .preview-card{border-radius:24px;overflow:hidden}
+    .preview-img{height:190px;background:center/cover no-repeat}
+    .preview-body{padding:16px}
+    .preview-body h3{margin:0 0 8px;color:var(--gold2)}
+    .preview-body p{margin:0;color:var(--muted);line-height:1.75}
+    .cta{text-align:center;border-radius:30px;padding:34px}
+    .cta h2{margin:0 0 10px;color:var(--gold2);font-size:2.1rem}
+    .cta p{margin:0 0 22px;color:var(--muted)}
+
+    /* Game investigation board */
+    .game-shell{min-height:100vh}
+    .game-top{
+      position:sticky;top:0;z-index:70;background:rgba(2,7,12,.86);backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.06)
+    }
+    .game-top-inner{width:min(1720px,calc(100% - 24px));margin:0 auto;min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .game-title{font-size:1.45rem;font-weight:950;color:var(--gold2)}
+    .top-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .pill{padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.035);border:1px solid rgba(214,169,93,.14);color:#d8e5eb;font-size:.88rem}
+    .board-layout{width:min(1720px,calc(100% - 24px));margin:14px auto 28px;display:grid;grid-template-columns:220px minmax(0,1fr) 360px;gap:14px;align-items:start}
+    .panel{border-radius:22px;background:linear-gradient(180deg,rgba(5,13,21,.88),rgba(2,7,12,.95));border:1px solid var(--line);box-shadow:var(--shadow)}
+    .panel-title{padding:18px 18px 10px}
+    .panel-title h2{margin:0;color:var(--gold2);font-size:1.16rem}
+    .panel-title p{margin:7px 0 0;color:var(--muted);font-size:.86rem;line-height:1.55}
+    .space-nav{padding:12px;display:grid;gap:9px}
+    .space-btn{
+      width:100%;display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center;text-align:left;
+      border:1px solid rgba(214,169,93,.12);background:rgba(255,255,255,.025);border-radius:16px;padding:10px;color:var(--text)
+    }
+    .space-btn.locked{opacity:.38;cursor:not-allowed}
+    .space-btn.active{border-color:rgba(72,211,223,.48);box-shadow:0 0 22px rgba(72,211,223,.1)}
+    .space-num{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(214,169,93,.26);color:var(--gold2);font-weight:950}
+    .space-btn strong{display:block}
+    .space-btn small{display:block;color:var(--muted);font-size:.78rem;line-height:1.45;margin-top:3px}
+    .main-board{overflow:hidden}
+    .scene-header{
+      display:grid;grid-template-columns:1fr 1.1fr auto;gap:12px;align-items:center;
+      padding:16px 18px;border-bottom:1px solid rgba(214,169,93,.16);background:rgba(0,0,0,.18)
+    }
+    .scene-header span{display:block;color:var(--muted);font-size:.79rem;margin-bottom:4px}
+    .scene-header strong{color:#fff;line-height:1.5}
+    .scene-count{font-size:1.35rem;color:var(--gold2)!important;font-weight:950}
+    .scene-wrap{position:relative;min-height:560px;background:#07111c;overflow:hidden}
+    .scene-image{position:absolute;inset:0;background:center/cover no-repeat;filter:saturate(.92) contrast(1.04)}
+    .scene-image::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.5))}
+    .scene-label{position:absolute;left:22px;top:22px;z-index:2;padding:11px 14px;border-radius:999px;background:rgba(2,8,13,.72);border:1px solid rgba(214,169,93,.28);color:var(--gold2);font-weight:900}
+    .hotspot{
+      position:absolute;z-index:5;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;
+      border:2px solid rgba(214,169,93,.92);background:rgba(4,13,20,.72);color:var(--gold2);font-weight:950;
+      box-shadow:0 0 0 8px rgba(214,169,93,.08),0 0 30px rgba(0,0,0,.65);
+      transition:.17s ease;
+    }
+    .hotspot:hover{transform:translate(-50%,-50%) scale(1.08);border-color:#fff}
+    .hotspot.found{border-color:rgba(72,211,223,.95);color:#d8fbff;box-shadow:0 0 0 8px rgba(72,211,223,.11),0 0 34px rgba(72,211,223,.14)}
+    .hotspot::after{
+      content:attr(data-name);position:absolute;left:54px;top:50%;transform:translateY(-50%);white-space:nowrap;
+      max-width:280px;overflow:hidden;text-overflow:ellipsis;padding:7px 10px;border-radius:12px;background:rgba(2,8,13,.78);border:1px solid rgba(214,169,93,.22);font-size:.82rem;color:#f5dfb2
+    }
+    .evidence-bar{padding:18px;background:linear-gradient(180deg,rgba(3,13,19,.92),rgba(2,8,13,.98));border-top:1px solid rgba(214,169,93,.18)}
+    .bar-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
+    .bar-head h3{margin:0;color:var(--gold2)}
+    .evidence-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .evidence-card{border:1px solid rgba(214,169,93,.16);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.03);transition:.2s}
+    .evidence-card.found{border-color:rgba(72,211,223,.38);box-shadow:0 0 22px rgba(72,211,223,.08)}
+    .evidence-thumb{height:98px;background:center/cover no-repeat;filter:grayscale(.8) brightness(.45)}
+    .evidence-card.found .evidence-thumb{filter:none}
+    .evidence-body{padding:12px}
+    .evidence-body b{display:block;color:#fff;font-size:.92rem;margin-bottom:6px}
+    .evidence-body p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.5}
+    .evidence-card.locked .evidence-body b{color:#89949b}
+    .puzzle-zone{padding:18px;border-top:1px solid rgba(214,169,93,.14);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .puzzle-zone strong{color:var(--gold2)}
+    .puzzle-zone p{margin:4px 0 0;color:var(--muted);line-height:1.6}
+    .right-panel{position:sticky;top:88px;max-height:calc(100vh - 102px);overflow:auto}
+    .case-info{padding:0 18px 18px}
+    .case-info dl{margin:0;display:grid;gap:8px}
+    .case-info div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(214,169,93,.11)}
+    .case-info dt{color:var(--muted);font-size:.85rem}
+    .case-info dd{margin:0;font-weight:800;color:#fff;text-align:right}
+    .suspects,.records{padding:0 18px 18px;display:grid;gap:10px}
+    .suspect{display:grid;grid-template-columns:76px 1fr;gap:12px;padding:10px;border:1px solid rgba(214,169,93,.12);background:rgba(255,255,255,.03);border-radius:16px}
+    .suspect-img{width:76px;height:86px;border-radius:12px;background:center/cover no-repeat;border:1px solid rgba(214,169,93,.18)}
+    .suspect h4{margin:0;color:var(--gold2)}
+    .suspect p{margin:4px 0 0;color:var(--muted);font-size:.78rem;line-height:1.45}
+    .records ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+    .records li{padding:10px;border-radius:13px;background:rgba(255,255,255,.03);border:1px solid rgba(214,169,93,.1);font-size:.84rem;line-height:1.5}
+    .memo{padding:13px;border-radius:14px;background:rgba(72,211,223,.08);border:1px solid rgba(72,211,223,.15);color:#d9fbff;line-height:1.65;font-size:.88rem}
+
+    /* Modals */
+    .modal{position:fixed;inset:0;z-index:300;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.68);backdrop-filter:blur(10px)}
+    .modal.open{display:grid}
+    .modal-panel{width:min(1050px,100%);max-height:92vh;overflow:auto;border-radius:24px;background:linear-gradient(180deg,rgba(7,16,26,.98),rgba(2,7,12,.98));border:1px solid rgba(214,169,93,.24);box-shadow:var(--shadow);padding:24px;position:relative}
+    .modal-panel.small{width:min(760px,100%)}
+    .modal-close{position:absolute;right:16px;top:16px;width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);font-size:1.3rem}
+    .modal h2{margin:10px 0 8px;color:var(--gold2);font-size:2rem}
+    .modal-sub{color:var(--muted);line-height:1.7}
+    .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+    .modal-image{min-height:420px;border-radius:20px;background:center/cover no-repeat;border:1px solid rgba(214,169,93,.18)}
+    .detail{padding:16px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(214,169,93,.12);line-height:1.8;color:#dbe6eb}
+    .detail p{margin:0 0 10px}
+    .feedback{margin-top:12px;padding:12px;border-radius:14px;line-height:1.6}
+    .feedback.ok{background:rgba(136,223,168,.11);border:1px solid rgba(136,223,168,.22);color:#e8fff1}
+    .feedback.no{background:rgba(204,61,47,.12);border:1px solid rgba(204,61,47,.25);color:#ffe3df}
+    .option-grid{display:grid;gap:10px;margin-top:14px}
+    .option-grid.cols{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .option{padding:14px;border-radius:15px;border:1px solid rgba(214,169,93,.16);background:rgba(255,255,255,.035);text-align:left}
+    .option:hover{border-color:var(--gold)}
+    .option.used{opacity:.43}
+    .slot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:12px}
+    .slot{min-height:64px;border:1px dashed rgba(214,169,93,.2);border-radius:15px;padding:13px;color:var(--muted);display:flex;align-items:center}
+    .form-grid{display:grid;gap:12px;margin-top:16px}
+    .form-row{display:grid;grid-template-columns:230px 1fr;gap:10px;align-items:center;padding:12px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(214,169,93,.12)}
+    .form-row label{font-weight:850;color:#f3ddb4}
+    select,input{width:100%;border-radius:12px;border:1px solid rgba(214,169,93,.18);background:#07131e;color:var(--text);padding:12px}
+    .report-img{width:100%;border-radius:20px;border:1px solid rgba(214,169,93,.18);margin:14px 0}
+    .ending-true h2{color:#8af4d4}
+    .ending-fail h2{color:#ffb0a5}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:400;display:none;max-width:360px;padding:14px 16px;border-radius:16px;background:rgba(5,16,24,.94);border:1px solid rgba(72,211,223,.28);box-shadow:var(--shadow);line-height:1.55}
+    .toast.show{display:block;animation:fadeToast 2.2s forwards}
+    @keyframes fadeToast{0%{opacity:0;transform:translateY(10px)}12%,82%{opacity:1;transform:none}100%{opacity:0;transform:translateY(10px)}}
+
+    @media(max-width:1280px){.board-layout{grid-template-columns:200px 1fr}.right-panel{position:static;grid-column:1/-1;max-height:none}.scene-wrap{min-height:480px}}
+    @media(max-width:900px){.hero-grid,.trailer-grid,.preview-grid,.modal-grid{grid-template-columns:1fr}.board-layout{grid-template-columns:1fr}.scene-header{grid-template-columns:1fr}.scene-wrap{min-height:420px}.hotspot::after{display:none}.form-row{grid-template-columns:1fr}.nav{align-items:flex-start;flex-direction:column}.hero-actions{flex-direction:column}.btn{width:100%}}
+  </style>
+</head>
+<body>
+  <div id="landing" class="page">
+    <header class="site-header">
+      <div class="container nav">
+        <a class="logo" href="#top">침묵의 항로</a>
+        <nav class="nav-links">
+          <a href="#trailer">예고 영상</a>
+          <a href="#intro">게임 소개</a>
+          <a href="#spaces">공간</a>
+          <button class="btn primary" data-start>사건 조사 시작하기</button>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="hero-bg"></div>
+      <div class="container hero-grid">
+        <div class="hero-card glass">
+          <span class="eyebrow">CASE FILE 22:35</span>
+          <h1>침묵의 항로</h1>
+          <p class="lead">고요한 크루즈 위, 한 사람의 죽음은 여러 개의 선택으로 완성되었다.</p>
+          <p>당신은 VIP 크루즈 행사 촬영을 맡은 프리랜서 사진작가 김민형이다. 사진 속 시간, 복도 동선, 호출 장치 기록을 대조해 단순한 범인 찾기가 아닌 죽음의 구조를 밝혀야 한다.</p>
+          <div class="hero-actions">
+            <a class="btn" href="#trailer">예고 영상 보기</a>
+            <a class="btn" href="#intro">게임 소개 보기</a>
+            <button class="btn primary" data-start>사건 조사 시작하기</button>
+          </div>
+        </div>
+        <aside class="case-card glass">
+          <h3>CASE OVERVIEW</h3>
+          <dl>
+            <div><dt>장소</dt><dd>VIP 크루즈 · 심야 항로</dd></div>
+            <div><dt>피해자</dt><dd>제약회사 대표</dd></div>
+            <div><dt>플레이어</dt><dd>사진작가 김민형</dd></div>
+            <div><dt>목표</dt><dd>세 사람의 역할과 순서를 보고서로 증명</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="trailer">
+      <div class="container trailer-grid">
+        <div class="section-copy">
+          <span class="eyebrow">TRAILER</span>
+          <h2>플레이 영상 미리보기</h2>
+          <p>조사 포인트를 클릭해 증거물을 획득하고, 단서가 모두 모이면 퍼즐이 해금된다. 실패 엔딩은 처음부터 다시, 진엔딩은 사건 구조를 완성해야만 도달할 수 있다.</p>
+        </div>
+        <div class="trailer glass">
+          <video controls playsinline preload="metadata" poster="assets/space-corridor.png">
+            <source src="assets/trailer.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="intro">
+      <div class="container cta glass">
+        <span class="eyebrow">MISSION</span>
+        <h2>“누가 범인인가?”가 아니라 “어떤 순서로 죽음이 완성됐는가?”</h2>
+        <p>강하나, 이민정, 황세준. 세 사람은 각각 다른 방식으로 사건에 관여했다. 한 명만 지목하면 불완전한 보고서가 되고, 오직 모든 역할과 순서를 증명해야 진실 규명 완료에 도달한다.</p>
+        <button class="btn gold" data-start>조사 보드 열기</button>
+      </div>
+    </section>
+
+    <section class="section" id="spaces">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">INVESTIGATION SPACES</span>
+          <h2>조사 공간</h2>
+        </div>
+        <div class="preview-grid" id="spacePreview"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="game" class="page hidden game-shell">
+    <header class="game-top">
+      <div class="game-top-inner">
+        <button class="btn" id="homeBtn">홈으로</button>
+        <div class="game-title">침묵의 항로 · 조사 보드</div>
+        <div class="top-meta">
+          <span class="pill" id="spaceBadge">현재 위치: 갑판</span>
+          <span class="pill" id="goalBadge">목표 확인 중</span>
+          <span class="pill" id="countBadge">단서 0 / 12</span>
+        </div>
+        <button class="btn primary" id="reportBtn">최종 보고서</button>
+      </div>
+    </header>
+
+    <div class="board-layout">
+      <aside class="panel">
+        <div class="panel-title">
+          <h2>공간 이동</h2>
+          <p>각 공간의 단서를 모두 수집하고 퍼즐을 풀면 다음 공간이 열린다.</p>
+        </div>
+        <nav class="space-nav" id="spaceNav"></nav>
+      </aside>
+
+      <main class="panel main-board">
+        <div class="scene-header">
+          <div><span>현재 위치</span><strong id="currentSpaceName">갑판</strong></div>
+          <div><span>현재 목표</span><strong id="currentGoal">사진 원본과 촬영 시각을 조사하라.</strong></div>
+          <div><span>단서 수집</span><strong class="scene-count" id="spaceCount">0 / 2</strong></div>
+        </div>
+        <section class="scene-wrap">
+          <div class="scene-image" id="sceneImage"></div>
+          <div class="scene-label" id="sceneLabel">갑판 조사</div>
+          <div id="hotspots"></div>
+        </section>
+        <section class="evidence-bar">
+          <div class="bar-head">
+            <h3>발견된 단서</h3>
+            <span class="pill" id="spaceStatus">조사 전</span>
+          </div>
+          <div class="evidence-grid" id="evidenceGrid"></div>
+        </section>
+        <section class="puzzle-zone" id="puzzleZone"></section>
+      </main>
+
+      <aside class="panel right-panel">
+        <div class="panel-title">
+          <h2>사건 정보</h2>
+          <p>조사 중 확인된 정보와 용의자 진술을 대조하라.</p>
+        </div>
+        <div class="case-info">
+          <dl>
+            <div><dt>사건 번호</dt><dd>CASE 22:35</dd></div>
+            <div><dt>객실</dt><dd>VIP 712호</dd></div>
+            <div><dt>피해자</dt><dd>제약회사 대표</dd></div>
+            <div><dt>플레이어</dt><dd>김민형</dd></div>
+          </dl>
+        </div>
+        <div class="panel-title"><h2>용의자 프로필</h2></div>
+        <div class="suspects" id="suspectList"></div>
+        <div class="panel-title"><h2>조사 기록</h2></div>
+        <div class="records">
+          <div class="memo" id="memoBox">사진과 기록을 먼저 확인하라.</div>
+          <ul id="recordList"></ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="modal" id="clueModal">
+    <div class="modal-panel">
+      <button class="modal-close" data-close="clueModal">×</button>
+      <div class="modal-grid">
+        <div class="modal-image" id="clueImage"></div>
+        <div>
+          <span class="eyebrow">EVIDENCE</span>
+          <h2 id="clueTitle">단서 제목</h2>
+          <p class="modal-sub" id="clueMeta">위치 · 유형</p>
+          <div class="detail" id="clueDetail"></div>
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn primary" id="collectBtn">증거물 수집</button>
+            <button class="btn" data-close="clueModal">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="puzzleModal">
+    <div class="modal-panel">
+      <button class="modal-close" data-close="puzzleModal">×</button>
+      <span class="eyebrow">PUZZLE</span>
+      <h2 id="puzzleTitle">퍼즐</h2>
+      <p class="modal-sub" id="puzzlePrompt"></p>
+      <div id="puzzleContent"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="reportModal">
+    <div class="modal-panel">
+      <button class="modal-close" data-close="reportModal">×</button>
+      <span class="eyebrow">FINAL REPORT</span>
+      <h2>최종 보고서 작성</h2>
+      <p class="modal-sub">한 명만 지목하면 실패입니다. 세 사람의 역할과 순서를 모두 맞히면 진엔딩이 열립니다.</p>
+      <div id="reportContent"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="endingModal">
+    <div class="modal-panel" id="endingPanel">
+      <button class="modal-close" data-close="endingModal">×</button>
+      <span class="eyebrow">ENDING</span>
+      <h2 id="endingTitle">엔딩</h2>
+      <img class="report-img" id="endingImg" alt="엔딩 보고서">
+      <div class="detail" id="endingText"></div>
+      <div id="endingActions" style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">증거물을 수집했습니다.</div>
+
+  <script>
+    const GAME = {
+      suspects: [
+        {id:'kang', name:'강하나', role:'VIP 행사 초청자', image:'assets/char-kang-hana.png', desc:'피해자와 제약회사 관련 접점이 있다. 차분하고 계산적인 태도를 보이며 컵과 약품 기록에 연결된다.', statement:'“대표님과는 짧게 인사만 나눴어요. 컵에는 손댄 적 없습니다.”'},
+        {id:'lee', name:'이민정', role:'행사 게스트', image:'assets/char-lee-minjung.png', desc:'피해자와 감정적으로 충돌한 정황이 있다. 복도 동선과 객실의 물리 흔적에 연결된다.', statement:'“객실에 간 건 맞아요. 하지만 그때 대표는 이미 이상한 상태였어요.”'},
+        {id:'hwang', name:'황세준', role:'행사 운영 담당자', image:'assets/char-hwang-sejun.png', desc:'호출 장치와 내부 문서에 접근할 수 있다. 신고자처럼 보이지만 구조 가능성 차단과 연결된다.', statement:'“호출 장치는 고장난 줄 알았습니다. 제가 일부러 막은 건 아닙니다.”'}
+      ],
+      spaces: [
+        {id:'deck', name:'갑판', short:'사진 속 시간 단서', image:'assets/space-deck.png', unlock:null, clues:['deck_photo','deck_time'], puzzle:'p_photo', goal:'사진 원본과 촬영 시각을 조사해 사건의 시작 시간을 고정하라.', hotspots:[
+          {clue:'deck_photo', x:31, y:58, no:'01'}, {clue:'deck_time', x:68, y:66, no:'02'}
+        ]},
+        {id:'corridor', name:'복도', short:'동선 추적', image:'assets/space-corridor.png', unlock:'p_photo', clues:['corridor_footprints','corridor_handle'], puzzle:'p_corridor', goal:'발자국과 손잡이 흔적으로 객실 접근 순서를 복원하라.', hotspots:[
+          {clue:'corridor_footprints', x:54, y:73, no:'01'}, {clue:'corridor_handle', x:83, y:39, no:'02'}
+        ]},
+        {id:'lounge', name:'VIP 라운지', short:'컵과 좌석 배치', image:'assets/space-lounge.png', unlock:'p_corridor', clues:['lounge_cups','lounge_seatmap'], puzzle:'p_cup', goal:'컵 위치와 좌석 배치를 대조해 피해자에게 접근한 인물을 찾아라.', hotspots:[
+          {clue:'lounge_cups', x:55, y:64, no:'01'}, {clue:'lounge_seatmap', x:26, y:48, no:'02'}
+        ]},
+        {id:'medical', name:'의료실', short:'약품 단서', image:'assets/space-medical.png', unlock:'p_cup', clues:['medical_log','medical_missing'], puzzle:'p_medical', goal:'누락된 약물이 죽음의 조건을 만들었는지 확인하라.', hotspots:[
+          {clue:'medical_log', x:45, y:57, no:'01'}, {clue:'medical_missing', x:71, y:42, no:'02'}
+        ]},
+        {id:'office', name:'업무 공간', short:'협박과 내부 자료', image:'assets/space-office.png', unlock:'p_medical', clues:['office_threat','office_email'], puzzle:'p_document', goal:'찢어진 문서와 내부 메일을 복구해 압박 관계를 밝혀라.', hotspots:[
+          {clue:'office_threat', x:39, y:64, no:'01'}, {clue:'office_email', x:67, y:48, no:'02'}
+        ]},
+        {id:'cabin', name:'피해자 객실', short:'마지막 현장', image:'assets/space-cabin.png', unlock:'p_document', clues:['cabin_calllog','cabin_scene'], puzzle:'p_calllog', finalPuzzle:'p_final', goal:'호출 장치 기록과 현장 흔적을 종합해 마지막 개입자를 밝혀라.', hotspots:[
+          {clue:'cabin_calllog', x:78, y:47, no:'01'}, {clue:'cabin_scene', x:34, y:58, no:'02'}
+        ]}
+      ],
+      clues: {
+        deck_photo:{id:'deck_photo', title:'사진 원본 묶음', place:'갑판', type:'사진 단서', image:'assets/clue-deck-photo-set.png', summary:'김민형의 카메라에 남은 갑판 사진 묶음.', detail:'여러 장의 폴라로이드와 원본 사진에는 달빛, 복도 창, 갑판 난간, 선체 조명이 함께 찍혀 있다. 사진은 단순 풍경이 아니라 사건 전후의 움직임을 시간순으로 고정하는 기준이다.'},
+        deck_time:{id:'deck_time', title:'촬영 시각 메모', place:'갑판', type:'기록 단서', image:'assets/clue-deck-time-note.png', summary:'22:18부터 22:35까지의 촬영 시각 기록.', detail:'촬영 기록에는 22:18, 22:22, 22:27, 22:31, 22:35가 표시되어 있다. 22:31 무렵 누군가 선미 쪽 계단을 급히 내려가는 흔적이 사진 속에 남아 있다.'},
+        corridor_footprints:{id:'corridor_footprints', title:'복도 발자국 흔적', place:'복도', type:'물리 단서', image:'assets/clue-corridor-footprints.png', summary:'고급 카펫 위에 남은 여러 방향의 발자국.', detail:'발자국은 한 사람의 이동이 아니라 세 번의 접근과 이탈이 겹친 형태다. 먼저 조심스럽게 접근한 흔적, 급한 움직임, 마지막에 객실 앞에서 멈춘 흔적이 구분된다.'},
+        corridor_handle:{id:'corridor_handle', title:'문 손잡이 지문', place:'복도', type:'물리 단서', image:'assets/clue-corridor-handle.png', summary:'객실 문 손잡이에 겹쳐 남은 지문과 닦인 흔적.', detail:'손잡이에는 급하게 잡은 손자국과 이후 닦아낸 흔적이 동시에 남아 있다. 이민정의 객실 방문 진술과 직접 충돌 가능성을 대조할 수 있는 단서다.'},
+        lounge_cups:{id:'lounge_cups', title:'컵 위치와 얼룩', place:'VIP 라운지', type:'배치 단서', image:'assets/clue-lounge-cups.png', summary:'라운지 테이블 위의 여러 잔과 하나의 이상한 얼룩.', detail:'피해자의 컵은 원래 자리에서 조금 벗어난 위치에 있다. 강하나가 앉은 테이블 라인에서 피해자에게 컵을 건네는 동선이 가장 자연스럽다.'},
+        lounge_seatmap:{id:'lounge_seatmap', title:'VIP 라운지 좌석 배치도', place:'VIP 라운지', type:'배치 단서', image:'assets/clue-lounge-seat-map.png', summary:'피해자와 세 용의자의 거리 관계가 표시된 좌석 지도.', detail:'좌석표는 강하나가 피해자 옆 테이블 라인에 있었고, 이민정은 행사 종료 후 뒤늦게 라운지에 진입했으며, 황세준은 운영 동선으로 주변에 남아 있었음을 보여준다.'},
+        medical_log:{id:'medical_log', title:'약품 보관 기록', place:'의료실', type:'문서 단서', image:'assets/clue-medical-log.png', summary:'선상 의료실의 약품 사용 내역과 환자 기록.', detail:'피해자 객실 번호와 같은 시간대의 의료 기록이 남아 있다. 강하나의 접근 가능성과 약물 개입이 직접 독살이 아니라 취약 조건 형성에 가까웠음을 암시한다.'},
+        medical_missing:{id:'medical_missing', title:'누락된 약물 보고', place:'의료실', type:'문서 단서', image:'assets/clue-medical-missing-drug.png', summary:'특정 약품이 보관함에서 사라진 정황.', detail:'의료실 보관함에서 특정 약품이 누락된 것이 확인된다. 누락된 약품은 즉각적인 사망 원인이라기보다 이후의 충돌을 더 위험하게 만드는 조건으로 작용했을 가능성이 있다.'},
+        office_threat:{id:'office_threat', title:'찢어진 협박 메모', place:'업무 공간', type:'문서 단서', image:'assets/clue-office-threat-note.png', summary:'찢어진 종이 조각에 남은 협박성 문장.', detail:'메모는 황세준이 피해자에게 오래 압박받아 왔음을 보여준다. “이 배 위에서 밝혀질 것이다”라는 문장은 그의 침묵과 마지막 선택을 설명하는 중요한 단서가 된다.'},
+        office_email:{id:'office_email', title:'내부 이메일 출력본', place:'업무 공간', type:'디지털 문서', image:'assets/clue-office-email-print.png', summary:'사건 직후 대응 지침이 담긴 내부 문서.', detail:'내부 이메일에는 언론 대응, 승객 문의 차단, 직원 보고 축소 지침이 정리되어 있다. 황세준이 단순한 신고자가 아니라 조직적 침묵의 압박 아래 있었다는 점을 보여준다.'},
+        cabin_calllog:{id:'cabin_calllog', title:'객실 호출 장치 기록', place:'피해자 객실', type:'기록 단서', image:'assets/clue-cabin-call-log.png', summary:'객실 712호의 반복 호출 및 차단 기록.', detail:'22:27 무렵부터 도움 요청 시도가 있었고, 22:31 이후 기록이 중단된다. 공식 신고 시각과 호출 로그 사이의 공백은 누군가가 살릴 수 있었던 가능성을 차단했음을 말한다.'},
+        cabin_scene:{id:'cabin_scene', title:'객실 현장 흔적', place:'피해자 객실', type:'현장 단서', image:'assets/clue-cabin-scene-trace.png', summary:'침구, 깨진 유리잔, 창문, 전도된 가구가 남긴 현장 정보.', detail:'침구의 흐트러짐, 깨진 유리잔, 창문 방향의 기류는 피해자가 이미 약해진 상태에서 직접 충돌을 겪었고, 이후 구조 요청이 늦어졌다는 결론을 뒷받침한다.'}
+      },
+      puzzles: {
+        p_photo:{title:'사진 속 시간 순서 맞추기', prompt:'사진을 가장 이른 시각부터 가장 늦은 시각까지 선택하라.', type:'order', items:[
+          ['22:35 · 파도 소리만 남은 갑판','p4'], ['22:18 · VIP 라운지 출입구','p1'], ['22:31 · 선미 쪽 계단의 실루엣','p3'], ['22:22 · 복도 끝 조명 변화','p2']
+        ], answer:['p1','p2','p3','p4'], success:'사진의 시간 순서를 복원했다. 복도 조사가 열렸다.'},
+        p_corridor:{title:'복도 동선 복원', prompt:'객실 접근 순서를 선택하라.', type:'sequence', options:['강하나','이민정','황세준'], answer:['강하나','이민정','황세준'], success:'강하나 → 이민정 → 황세준 순서로 객실 접근 흐름이 복원되었다.'},
+        p_cup:{title:'컵의 주인 찾기', prompt:'피해자에게 가장 자연스럽게 컵을 건넬 수 있었던 인물은?', type:'choice', choices:['강하나','이민정','황세준'], answer:'강하나', success:'컵과 좌석 배치가 강하나의 선행 행동을 가리킨다.'},
+        p_medical:{title:'약품 보관함 해금', prompt:'의료 기록과 누락 보고에서 도출한 세 자리 보관함 코드를 입력하라.', type:'code', answer:'317', success:'보관함 기록을 확인했다. 약물은 죽음의 조건을 만들었다.'},
+        p_document:{title:'협박 문서 복구', prompt:'찢어진 문장을 자연스러운 순서로 복구하라.', type:'order', items:[
+          ['“이번 협찬 건도 조용히 넘기고”','d2'], ['“네 기록을 공개하고 싶지 않다면”','d1'], ['“아무 말도 하지 말아라”','d3']
+        ], answer:['d1','d2','d3'], success:'협박 문서가 복구되었다. 황세준의 압박 관계가 드러났다.'},
+        p_calllog:{title:'호출 장치 시간 대조', prompt:'호출 로그가 의미하는 핵심 결론은?', type:'choice', choices:['호출 장치는 처음부터 고장 나 있었다','도움 요청은 있었고 누군가 기록을 차단했다','피해자는 신고 이후에 쓰러졌다'], answer:'도움 요청은 있었고 누군가 기록을 차단했다', success:'호출 장치 기록의 공백이 드러났다. 최종 타임라인을 구성할 수 있다.'},
+        p_final:{title:'최종 타임라인 퍼즐', prompt:'세 사람의 개입을 사건 발생 순서대로 배열하라.', type:'order', items:[
+          ['황세준 · 호출 장치를 차단하고 신고를 지연한다','t3'], ['강하나 · 피해자의 몸 상태를 취약하게 만든다','t1'], ['이민정 · 객실에서 직접 충돌을 일으킨다','t2']
+        ], answer:['t1','t2','t3'], success:'최종 타임라인이 완성되었다. 최종 보고서를 작성하라.'}
+      }
+    };
+
+    const state = {
+      current:'deck',
+      found:new Set(),
+      solved:new Set(),
+      unlocked:new Set(['deck']),
+      activeClue:null,
+      reportSequence:null
+    };
+
+    const $ = id => document.getElementById(id);
+    const spaceById = id => GAME.spaces.find(s=>s.id===id);
+    const currentSpace = () => spaceById(state.current);
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    function init(){
+      document.querySelectorAll('[data-start]').forEach(b=>b.addEventListener('click', startGame));
+      document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+      document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m) closeModal(m.id)}));
+      $('homeBtn').addEventListener('click', goHome);
+      $('reportBtn').addEventListener('click', openReport);
+      renderLandingSpaces();
+      renderAll();
+    }
+
+    function startGame(){
+      $('landing').classList.add('hidden');
+      $('game').classList.remove('hidden');
+      window.scrollTo(0,0);
+      renderAll();
+    }
+    function goHome(){
+      $('game').classList.add('hidden');
+      $('landing').classList.remove('hidden');
+      window.scrollTo(0,0);
+    }
+    function resetGame(){
+      state.current='deck';
+      state.found=new Set();
+      state.solved=new Set();
+      state.unlocked=new Set(['deck']);
+      state.activeClue=null;
+      state.reportSequence=null;
+      renderAll();
+    }
+    function unlockSpaces(){
+      GAME.spaces.forEach(s=>{if(!s.unlock || state.solved.has(s.unlock)) state.unlocked.add(s.id)});
+    }
+
+    function renderLandingSpaces(){
+      $('spacePreview').innerHTML = GAME.spaces.map(s=>`
+        <article class="preview-card glass">
+          <div class="preview-img" style="background-image:url('${s.image}')"></div>
+          <div class="preview-body"><h3>${s.name}</h3><p>${s.goal}</p></div>
+        </article>
+      `).join('');
+    }
+
+    function renderAll(){
+      unlockSpaces();
+      renderSpaceNav();
+      renderScene();
+      renderRight();
+    }
+
+    function renderSpaceNav(){
+      $('spaceNav').innerHTML = GAME.spaces.map((s,i)=>{
+        const unlocked = state.unlocked.has(s.id);
+        const active = state.current === s.id;
+        const done = isSpaceDone(s);
+        return `<button class="space-btn ${active?'active':''} ${unlocked?'':'locked'}" data-space="${s.id}" ${unlocked?'':'disabled'}>
+          <span class="space-num">${String(i+1).padStart(2,'0')}</span>
+          <span><strong>${s.name}</strong><small>${s.short}${done?' · 완료':''}</small></span>
+        </button>`;
+      }).join('');
+      document.querySelectorAll('[data-space]').forEach(btn=>{
+        btn.addEventListener('click',()=>{state.current=btn.dataset.space; renderAll();});
+      });
+    }
+
+    function renderScene(){
+      const s = currentSpace();
+      const foundCount = s.clues.filter(id=>state.found.has(id)).length;
+      $('spaceBadge').textContent = `현재 위치: ${s.name}`;
+      $('goalBadge').textContent = state.solved.has(s.finalPuzzle || s.puzzle) ? '보고서 작성 가능 여부 확인' : '단서 수집 / 퍼즐 해결';
+      $('countBadge').textContent = `단서 ${state.found.size} / ${Object.keys(GAME.clues).length}`;
+      $('currentSpaceName').textContent = s.name;
+      $('currentGoal').textContent = getGoalText(s);
+      $('spaceCount').textContent = `${foundCount} / ${s.clues.length}`;
+      $('sceneLabel').textContent = `${s.name} 조사`;
+      $('sceneImage').style.backgroundImage = `url('${s.image}')`;
+      $('hotspots').innerHTML = s.hotspots.map(h=>{
+        const clue = GAME.clues[h.clue];
+        return `<button class="hotspot ${state.found.has(h.clue)?'found':''}" style="left:${h.x}%;top:${h.y}%;" data-clue="${h.clue}" data-name="${clue.title}">${h.no}</button>`;
+      }).join('');
+      document.querySelectorAll('[data-clue]').forEach(btn=>btn.addEventListener('click',()=>openClue(btn.dataset.clue)));
+      renderEvidenceGrid(s);
+      renderPuzzleZone(s);
+    }
+
+    function renderEvidenceGrid(s){
+      $('spaceStatus').textContent = s.clues.every(id=>state.found.has(id)) ? '공간 단서 수집 완료' : '조사 진행 중';
+      $('evidenceGrid').innerHTML = s.clues.map((id,idx)=>{
+        const c = GAME.clues[id];
+        const found = state.found.has(id);
+        return `<article class="evidence-card ${found?'found':'locked'}">
+          <div class="evidence-thumb" style="background-image:url('${found?c.image:'assets/hero-cruise.png'}')"></div>
+          <div class="evidence-body">
+            <b>${String(idx+1).padStart(2,'0')} ${found?c.title:'미확인 단서'}</b>
+            <p>${found?c.summary:'조사 화면의 번호 포인트를 클릭해 증거물을 수집하세요.'}</p>
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    function renderPuzzleZone(s){
+      const cluesDone = s.clues.every(id=>state.found.has(id));
+      const p = GAME.puzzles[s.puzzle];
+      const firstSolved = state.solved.has(s.puzzle);
+      const finalPuzzle = s.finalPuzzle ? GAME.puzzles[s.finalPuzzle] : null;
+      const finalSolved = finalPuzzle ? state.solved.has(s.finalPuzzle) : false;
+
+      if(!cluesDone){
+        $('puzzleZone').innerHTML = `<div><strong>${p.title}</strong><p>이 공간의 단서를 모두 수집하면 퍼즐이 열린다.</p></div><button class="btn" disabled>잠김</button>`;
+        return;
+      }
+      if(!firstSolved){
+        $('puzzleZone').innerHTML = `<div><strong>${p.title}</strong><p>${p.prompt}</p></div><button class="btn primary" data-puzzle="${puzzleIdOf(s,p)}">퍼즐 열기</button>`;
+      }else if(finalPuzzle && !finalSolved){
+        $('puzzleZone').innerHTML = `<div><strong>${finalPuzzle.title}</strong><p>${finalPuzzle.prompt}</p></div><button class="btn primary" data-puzzle="${s.finalPuzzle}">최종 퍼즐 열기</button>`;
+      }else{
+        $('puzzleZone').innerHTML = `<div><strong>조사 완료</strong><p>${finalPuzzle ? finalPuzzle.success : p.success}</p></div><button class="btn gold" id="goReport">최종 보고서</button>`;
+        $('goReport').addEventListener('click', openReport);
+        return;
+      }
+      const btn = document.querySelector('[data-puzzle]');
+      if(btn) btn.addEventListener('click',()=>openPuzzle(btn.dataset.puzzle));
+    }
+    function puzzleIdOf(s,p){ return Object.entries(GAME.puzzles).find(([id,obj])=>obj===p)?.[0] || s.puzzle; }
+
+    function getGoalText(s){
+      const cluesDone = s.clues.every(id=>state.found.has(id));
+      if(!cluesDone) return s.goal;
+      if(!state.solved.has(s.puzzle)) return `${GAME.puzzles[s.puzzle].title}을 해결하라.`;
+      if(s.finalPuzzle && !state.solved.has(s.finalPuzzle)) return `${GAME.puzzles[s.finalPuzzle].title}을 해결하라.`;
+      if(s.id === 'cabin') return '최종 보고서를 작성해 사건의 구조를 증명하라.';
+      return '다음 공간으로 이동하라.';
+    }
+
+    function renderRight(){
+      $('suspectList').innerHTML = GAME.suspects.map(s=>`
+        <article class="suspect">
+          <div class="suspect-img" style="background-image:url('${s.image}')"></div>
+          <div><h4>${s.name}</h4><p>${s.role}</p><p>${s.desc}</p><p><b>진술:</b> ${s.statement}</p></div>
+        </article>
+      `).join('');
+      const found = Array.from(state.found).map(id=>GAME.clues[id]);
+      $('recordList').innerHTML = found.length ? found.slice(-8).reverse().map(c=>`<li><b>${c.title}</b><br>${c.place} · ${c.type}</li>`).join('') : '<li>아직 수집한 증거물이 없습니다.</li>';
+      $('memoBox').textContent = buildMemo();
+    }
+
+    function buildMemo(){
+      if(state.solved.has('p_final')) return '최종 타임라인이 완성되었다. 보고서에서 강하나=조건 형성, 이민정=직접 충돌, 황세준=구조 차단을 증명하라.';
+      if(state.solved.has('p_calllog')) return '호출 장치 기록은 황세준의 마지막 개입 가능성을 가리킨다. 이제 세 사람의 순서를 완성해야 한다.';
+      if(state.solved.has('p_document')) return '황세준은 단순 신고자가 아니다. 내부 압박과 침묵의 구조를 확인했다.';
+      if(state.solved.has('p_medical')) return '누락 약물은 죽음의 조건을 만들었다. 직접 사인이 아니라 구조의 첫 단계다.';
+      if(state.solved.has('p_cup')) return '강하나가 컵을 건넬 수 있는 가장 자연스러운 위치에 있었다.';
+      if(state.solved.has('p_corridor')) return '복도 동선은 강하나 → 이민정 → 황세준 순서로 이어진다.';
+      if(state.solved.has('p_photo')) return '사진의 시간은 공식 신고 이전의 움직임을 보여준다.';
+      return '먼저 갑판의 사진 원본과 촬영 시각을 확인하라.';
+    }
+
+    function isSpaceDone(s){
+      return state.solved.has(s.puzzle) && (!s.finalPuzzle || state.solved.has(s.finalPuzzle));
+    }
+
+    function openClue(id){
+      state.activeClue = id;
+      const c = GAME.clues[id];
+      $('clueTitle').textContent = c.title;
+      $('clueMeta').textContent = `${c.place} · ${c.type}`;
+      $('clueImage').style.backgroundImage = `url('${c.image}')`;
+      $('clueDetail').innerHTML = `<p><b>${c.summary}</b></p><p>${c.detail}</p>`;
+      $('collectBtn').textContent = state.found.has(id) ? '이미 수집한 증거물' : '증거물 수집';
+      $('collectBtn').disabled = state.found.has(id);
+      $('collectBtn').onclick = () => collectClue(id);
+      openModal('clueModal');
+    }
+
+    function collectClue(id){
+      if(!state.found.has(id)){
+        state.found.add(id);
+        toast(`증거물 수집: ${GAME.clues[id].title}`);
+      }
+      closeModal('clueModal');
+      renderAll();
+    }
+
+    function openPuzzle(id){
+      const p = GAME.puzzles[id];
+      $('puzzleTitle').textContent = p.title;
+      $('puzzlePrompt').textContent = p.prompt;
+      $('puzzleContent').innerHTML = '';
+      if(p.type === 'order') renderOrderPuzzle(id,p);
+      if(p.type === 'sequence') renderSequencePuzzle(id,p);
+      if(p.type === 'choice') renderChoicePuzzle(id,p);
+      if(p.type === 'code') renderCodePuzzle(id,p);
+      openModal('puzzleModal');
+    }
+
+    function renderOrderPuzzle(id,p){
+      let selected = [];
+      const content = $('puzzleContent');
+      content.innerHTML = `
+        <div class="option-grid cols" id="optionBank"></div>
+        <div class="slot-grid" id="slotGrid"></div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn" id="resetOrder">초기화</button>
+          <button class="btn primary" id="submitOrder">정답 확인</button>
+        </div>
+        <div id="puzzleFeedback"></div>`;
+      const bank = $('optionBank');
+      const slots = $('slotGrid');
+      const draw = () => {
+        bank.innerHTML = p.items.map(([label,val])=>`<button class="option ${selected.includes(val)?'used':''}" data-val="${val}" ${selected.includes(val)?'disabled':''}>${label}</button>`).join('');
+        slots.innerHTML = p.answer.map((_,i)=>`<div class="slot">${selected[i] ? (i+1)+'. '+p.items.find(x=>x[1]===selected[i])[0] : (i+1)+'. 선택 대기'}</div>`).join('');
+        bank.querySelectorAll('[data-val]').forEach(b=>b.addEventListener('click',()=>{if(selected.length<p.answer.length){selected.push(b.dataset.val);draw();}}));
+      };
+      draw();
+      $('resetOrder').onclick=()=>{selected=[];draw();$('puzzleFeedback').innerHTML='';};
+      $('submitOrder').onclick=()=>checkPuzzle(id, p.answer.every((v,i)=>v===selected[i]) && selected.length===p.answer.length, p.success);
+    }
+
+    function renderSequencePuzzle(id,p){
+      $('puzzleContent').innerHTML = `
+        <div class="form-grid">
+          ${[1,2,3].map(i=>`<div class="form-row"><label>${i}번째 접근자</label><select id="seq${i}"><option value="">선택</option>${p.options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select></div>`).join('')}
+        </div>
+        <button class="btn primary" id="submitSeq" style="margin-top:14px">정답 확인</button>
+        <div id="puzzleFeedback"></div>`;
+      $('submitSeq').onclick=()=>{
+        const vals = [1,2,3].map(i=>$('seq'+i).value);
+        checkPuzzle(id, vals.length===new Set(vals).size && p.answer.every((v,i)=>v===vals[i]), p.success);
+      };
+    }
+
+    function renderChoicePuzzle(id,p){
+      $('puzzleContent').innerHTML = `<div class="option-grid">${p.choices.map(c=>`<button class="option" data-choice="${c}">${c}</button>`).join('')}</div><div id="puzzleFeedback"></div>`;
+      document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>checkPuzzle(id, b.dataset.choice === p.answer, p.success));
+    }
+
+    function renderCodePuzzle(id,p){
+      $('puzzleContent').innerHTML = `
+        <div class="form-row"><label>보관함 코드</label><input id="codeInput" maxlength="3" placeholder="세 자리 숫자"></div>
+        <button class="btn primary" id="submitCode" style="margin-top:14px">해금</button>
+        <div id="puzzleFeedback"></div>`;
+      $('submitCode').onclick=()=>checkPuzzle(id, $('codeInput').value.trim()===p.answer, p.success);
+    }
+
+    function checkPuzzle(id, ok, successText){
+      const fb = $('puzzleFeedback');
+      if(!ok){ fb.className='feedback no'; fb.textContent='정답이 아니다. 수집한 단서와 진술을 다시 대조하라.'; return; }
+      fb.className='feedback ok';
+      fb.textContent=successText;
+      state.solved.add(id);
+      unlockSpaces();
+      setTimeout(()=>{ closeModal('puzzleModal'); renderAll(); }, 900);
+    }
+
+    function openReport(){
+      const allClues = Object.keys(GAME.clues).every(id=>state.found.has(id));
+      const solvedFinal = state.solved.has('p_final');
+      if(!allClues || !solvedFinal){
+        $('reportContent').innerHTML = `<div class="detail"><p><b>최종 보고서 작성 조건 미충족</b></p><p>모든 증거물 12개를 수집하고 최종 타임라인 퍼즐을 해결해야 보고서를 제출할 수 있습니다.</p><p>현재 단서: ${state.found.size} / ${Object.keys(GAME.clues).length}</p></div>`;
+        openModal('reportModal'); return;
+      }
+      state.reportSequence = null;
+      $('reportContent').innerHTML = `
+        <div class="form-grid">
+          <div class="form-row"><label>죽음의 조건을 만든 인물</label><select id="r1">${suspectOptions()}</select></div>
+          <div class="form-row"><label>직접 충돌을 일으킨 인물</label><select id="r2">${suspectOptions()}</select></div>
+          <div class="form-row"><label>구조 가능성을 차단한 인물</label><select id="r3">${suspectOptions()}</select></div>
+          <div class="form-row"><label>올바른 사건 순서</label><div class="option-grid">
+            <button class="option" data-seq="correct">강하나 → 이민정 → 황세준</button>
+            <button class="option" data-seq="wrong1">이민정 → 강하나 → 황세준</button>
+            <button class="option" data-seq="wrong2">황세준 → 이민정 → 강하나</button>
+          </div></div>
+        </div>
+        <button class="btn gold" id="submitReport" style="margin-top:16px">보고서 제출</button>
+        <div id="reportFeedback"></div>`;
+      document.querySelectorAll('[data-seq]').forEach(b=>b.onclick=()=>{state.reportSequence=b.dataset.seq;document.querySelectorAll('[data-seq]').forEach(x=>x.classList.remove('used'));b.classList.add('used');});
+      $('submitReport').onclick=submitReport;
+      openModal('reportModal');
+    }
+
+    function suspectOptions(){
+      return `<option value="">선택</option><option value="강하나">강하나</option><option value="이민정">이민정</option><option value="황세준">황세준</option>`;
+    }
+
+    function submitReport(){
+      const ok = $('r1').value==='강하나' && $('r2').value==='이민정' && $('r3').value==='황세준' && state.reportSequence==='correct';
+      closeModal('reportModal');
+      showEnding(ok);
+    }
+
+    function showEnding(ok){
+      const panel = $('endingPanel');
+      panel.classList.toggle('ending-true', ok);
+      panel.classList.toggle('ending-fail', !ok);
+      $('endingTitle').textContent = ok ? '진엔딩 · 진실 규명 완료' : '실패 엔딩 · 불완전한 보고서';
+      $('endingImg').src = ok ? 'assets/ending-true-report.png' : 'assets/ending-fail-report.png';
+      $('endingText').innerHTML = ok
+        ? `<p><b>이 사건은 한 명의 범행으로 완성된 죽음이 아니었다.</b></p><p>강하나는 죽음의 조건을 만들었고, 이민정은 직접 충돌로 죽음을 가속했으며, 황세준은 살릴 수 있었던 가능성을 차단했다.</p><p>당신은 모든 단서와 진술을 종합해 사건의 구조를 증명했다.</p>`
+        : `<p><b>당신은 사건의 일부만 보았다.</b></p><p>한 사람만 지목하거나 순서를 잘못 작성한 보고서는 진실에 도달할 수 없다.</p><p>처음부터 다시 조사해 진엔딩 보고서를 완성하세요.</p>`;
+      $('endingActions').innerHTML = ok
+        ? `<button class="btn primary" id="endHome">메인으로 돌아가기</button>`
+        : `<button class="btn danger" id="restart">처음부터 다시 조사하기</button>`;
+      setTimeout(()=>{
+        if(ok) $('endHome').onclick=()=>{closeModal('endingModal');goHome();};
+        else $('restart').onclick=()=>{closeModal('endingModal');resetGame();};
+      },0);
+      openModal('endingModal');
+    }
+
+    function openModal(id){$(id).classList.add('open');}
+    function closeModal(id){$(id).classList.remove('open');}
+    function toast(msg){
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.remove('show');
+      void t.offsetWidth;
+      t.classList.add('show');
+    }
+  </script>
+</body>
+</html>
