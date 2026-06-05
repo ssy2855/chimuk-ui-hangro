@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>침묵의 항로 | Midnight Ocean Cruise Mystery</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <section id="homeScreen" class="home-screen">
+    <div class="home-overlay"></div>
+    <div class="home-shell">
+      <div class="ornament">⚓</div>
+      <p class="eyebrow">MIDNIGHT OCEAN CRUISE MYSTERY</p>
+      <h1>침묵의 항로</h1>
+      <p class="home-copy">VIP 크루즈에서 발생한 사망 사건. 단서를 수집하고, 용의자의 동기를 추적한 뒤, 통신실에서 증거를 송신하라.</p>
+      <div class="trailer-frame">
+        <video src="trailer.mp4" controls autoplay muted loop playsinline poster="assets/hero-cruise.jpg"></video>
+      </div>
+      <div class="home-actions">
+        <button id="startBtn" class="primary-btn">사건 조사 시작</button>
+        <button id="continueBtn" class="ghost-btn">저장된 조사 이어하기</button>
+      </div>
+    </div>
+  </section>
+
+  <main id="gameScreen" class="game-screen hidden">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SILENT ROUTE INVESTIGATION</p>
+        <h2 id="locationTitle">갑판</h2>
+      </div>
+      <div class="objective-wrap">
+        <span id="objectiveText">갑판에서 촬영 흔적을 확인하라.</span>
+        <div class="progress-box"><span id="progressText">조사 진행률 0%</span><div><i id="progressBar"></i></div></div>
+      </div>
+      <div class="top-actions">
+        <button id="reportBtn" class="mini-btn">사건 재구성</button>
+        <button id="newGameBtn" class="mini-btn danger">새 게임</button>
+        <button id="homeBtn" class="mini-btn">홈</button>
+      </div>
+    </header>
+
+    <div class="game-layout">
+      <aside class="side-panel inventory-panel">
+        <div class="panel-title">수집한 단서</div>
+        <div id="inventoryList" class="inventory-list empty">아직 획득한 단서가 없습니다.</div>
+        <button id="photoPuzzleBtn" class="wide-btn hidden">갑판 사진 순서 맞추기</button>
+        <button id="transmissionBtn" class="wide-btn hidden">송신 코드 입력</button>
+      </aside>
+
+      <section class="scene-panel">
+        <div id="scene" class="scene" role="region" aria-label="조사 공간">
+          <img id="sceneBg" class="scene-bg" src="assets/space-deck.jpg" alt="현재 조사 공간" />
+          <div id="hotspots" class="hotspots"></div>
+          <div class="scene-caption"><span id="sceneHint">반짝이는 오브젝트를 눌러 단서를 조사하세요.</span></div>
+        </div>
+        <nav id="locationNav" class="location-nav"></nav>
+      </section>
+
+      <aside class="side-panel suspect-panel">
+        <div class="panel-title">인물 파일</div>
+        <div id="suspectButtons" class="suspect-buttons"></div>
+        <div class="panel-title small">사건 자료실</div>
+        <div id="motiveArchive" class="motive-archive"></div>
+      </aside>
+    </div>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-card">
+      <button class="modal-close" data-close="true">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
