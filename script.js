@@ -110,6 +110,39 @@ const records = [
   ["office", "INTERNAL MEMO", "motive-hwang-blackmail-file.jpg"]
 ];
 
+const dialogues = {
+  deck: { profile: "lee", title: "이민정", lines: [
+    "이민정은 젖은 갑판 쪽을 흘끗 보았다.",
+    "“그 시간대라면… 라운지에서 나오던 사람들이 있었어요.”",
+    "그녀는 말을 끝내지 않고 시선을 피했다."
+  ], note: "이민정 / 라운지 이후 동선 언급" },
+  lounge: { profile: "kang", title: "강하나", lines: [
+    "좌석 배치도를 보자 강하나의 손끝이 아주 잠깐 멈췄다.",
+    "“초대석이 어디였는지는 기억합니다. 하지만 그 사람에게 가까이 간 건 저뿐만이 아니에요.”",
+    "차분한 말투와 달리 시선은 테이블 위를 벗어나지 못했다."
+  ], note: "강하나 / VIP 좌석 접근 가능" },
+  medical: { profile: "kang", title: "강하나", lines: [
+    "의무실 기록을 꺼내자 강하나는 한참 동안 아무 말도 하지 않았다.",
+    "“그 약 이름을… 아직도 기억하는군요.”",
+    "반려 도장이 찍힌 보고서가 그녀의 침묵을 대신했다."
+  ], note: "강하나 / 신약 부작용 기록" },
+  corridor: { profile: "lee", title: "이민정", lines: [
+    "복도의 흔적을 말하자 이민정의 눈빛이 흔들렸다.",
+    "“그 방 앞까지 간 건 맞아요. 문이 열려 있었어요.”",
+    "그 말은 변명보다 오래 눌러 둔 고백에 가까웠다."
+  ], note: "이민정 / 객실 앞 정지 흔적" },
+  cabin: { profile: "lee", title: "이민정", lines: [
+    "호출 기록의 공백을 확인하자 이민정은 낮게 숨을 삼켰다.",
+    "“제가 나올 때… 아직 끝난 건 아니었어요.”",
+    "객실에 남은 흔적은 대면 이후의 시간을 가리키고 있었다."
+  ], note: "이민정 / 객실 대면 이후 공백" },
+  office: { profile: "hwang", title: "황세준", lines: [
+    "황세준은 금고 안 문서를 보자 더 이상 웃지 않았다.",
+    "“최태오 대표 밑에서 일한 적이 있습니다. 이 배에 오른 것도 우연이 아니었죠.”",
+    "접근 로그와 경고 메모가 같은 이름을 향했다."
+  ], note: "황세준 / 내부자 및 통신실 접근" }
+};
+
 const defaultState = {
   place: "deck",
   unlocked: ["deck"],
@@ -195,15 +228,9 @@ function renderPlace() {
     b.style.left = `${x}%`;
     b.style.top = `${y}%`;
 
-    const img = document.createElement("img");
-    img.alt = "";
-    img.src = A(c.thumb);
-    removeLightBackground(img);
-
     const label = document.createElement("span");
     label.textContent = c.title;
 
-    b.appendChild(img);
     b.appendChild(label);
     b.onclick = () => acquireClue(id);
     $("hotspotLayer").appendChild(b);
@@ -338,10 +365,41 @@ function markSolved(puzzle, notes = []) {
     state.unlocked.push(next);
   }
 
+  if (dialogues[puzzle]) addNote(dialogues[puzzle].note);
+
   saveState();
   render();
-  closePuzzle();
   toast("잠금 해제");
+
+  if (dialogues[puzzle]) showDialogue(puzzle);
+  else closePuzzle();
+}
+
+function showDialogue(key) {
+  const d = dialogues[key];
+  let i = 0;
+
+  function draw() {
+    const prof = profiles[d.profile];
+    $("puzzleRoot").innerHTML =
+      pTitle(d.title) +
+      `<div class="truth-layout">
+        <div class="truth-portraits"><img src="${A(prof.img)}" alt=""></div>
+        <div>
+          <div class="dialogue">${d.lines[i]}</div>
+          <div class="actions"><span></span><button class="btn primary" id="nextDialogue">${i === d.lines.length - 1 ? "계속 조사" : "다음"}</button></div>
+        </div>
+      </div>`;
+
+    $("nextDialogue").onclick = () => {
+      i++;
+      if (i >= d.lines.length) closePuzzle();
+      else draw();
+    };
+  }
+
+  draw();
+  $("puzzleModal").classList.remove("hidden");
 }
 
 function acquireClue(id) {
