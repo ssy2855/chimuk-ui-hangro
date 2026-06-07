@@ -917,3 +917,295 @@ function openTruth(){
   renderLine(0);
   $("puzzleModal").classList.remove("hidden");
 }
+
+
+// ===== final clarity fix: 독백은 인물 사진/이름 없이 표시 =====
+function renderPlayerMonologue(title, lines, doneText="계속", onDone=null){
+  let i=0;
+  function draw(){
+    $("puzzleRoot").innerHTML = pTitle(title) + `
+      <div class="monologuePanel">
+        <div class="monoLabel">내 기록</div>
+        <div class="monologueText">${lines[i]}</div>
+        <div class="monoMeter">
+          ${lines.map((_,idx)=>`<span class="${idx===i?"on":""}"></span>`).join("")}
+        </div>
+        <div class="actions">
+          <button class="btn" id="monoPrev" ${i===0?"disabled":""}>이전</button>
+          <button class="btn primary" id="monoNext">${i===lines.length-1?doneText:"다음"}</button>
+        </div>
+      </div>`;
+    $("monoPrev").onclick=()=>{i=Math.max(0,i-1);draw()};
+    $("monoNext").onclick=()=>{
+      if(i>=lines.length-1){
+        if(onDone) onDone();
+        else closePuzzle();
+      }else{
+        i++;
+        draw();
+      }
+    };
+  }
+  draw();
+  $("puzzleModal").classList.remove("hidden");
+}
+
+// 갑판/라운지 완료 후에는 용의자가 말하지 않고 플레이어 독백으로 정리
+function showDialogue(key){
+  const mono = {
+    deck: {
+      title:"갑판 기록",
+      lines:[
+        "사진의 시간이 맞춰졌다. 최태오가 쓰러진 뒤, 이 배는 어디에도 닿지 못하고 있었다.",
+        "라운지에서 시작된 소란, 객실로 이어진 이동, 그리고 끊긴 통신.",
+        "이건 단순한 사고가 아니다. 지금부터는 최태오의 마지막 동선을 따라가야 한다."
+      ]
+    },
+    lounge: {
+      title:"라운지 기록",
+      lines:[
+        "찢어진 좌석 배치도가 하나로 맞춰졌다.",
+        "최태오의 VIP 좌석 가까이에 강하나의 초청석이 걸린다.",
+        "접힌 가족 편지가 손에 남았다. 강하나는 단순한 초청객이 아니다."
+      ]
+    }
+  };
+  if(mono[key]){
+    renderPlayerMonologue(mono[key].title, mono[key].lines);
+    return;
+  }
+
+  const d=dialogues[key];
+  if(!d){
+    closePuzzle();
+    return;
+  }
+  let i=0;
+  const exprs=dialogueExpressions[key]||[];
+  function draw(){
+    const expr=exprs[i]||"neutral";
+    $("puzzleRoot").innerHTML=pTitle(d.name)+`<div class="dialogueLayout"><div class="vnPortraitWrap"><img class="vnPortrait" src="${portraitSrc(d.profile,expr)}" alt="${d.name}"></div><div class="vnBox"><div class="vnName">${d.name}</div><div class="dialogue">“${d.lines[i]}”</div><div class="actions"><span></span><button id="nextLine" class="btn primary">${i===d.lines.length-1?"계속 조사":"다음"}</button></div></div></div>`;
+    $("nextLine").onclick=()=>{i++; if(i>=d.lines.length) closePuzzle(); else draw();};
+  }
+  draw();
+  $("puzzleModal").classList.remove("hidden");
+}
+
+// 의무실/복도/객실/사무실: 대화 중에는 용의자 표시, 깨달음은 내 독백으로 표시
+function runLocalInterrogation(key){
+  const data = localInterrogations[key];
+  let lineIndex = 0;
+
+  function renderLine(warning=""){
+    const expr = lineIndex === data.contradictionIndex ? data.expression : "neutral";
+    $("puzzleRoot").innerHTML = pTitle(`${data.title} 조사`) + `
+      <div class="dialogueLayout">
+        <div class="vnPortraitWrap">
+          <img class="vnPortrait" src="${portraitSrc(data.profile, expr)}" alt="${data.speaker}">
+        </div>
+        <div class="vnBox">
+          <div class="vnName">${data.speaker}</div>
+          <div class="dialogue">“${data.lines[lineIndex]}”</div>
+          <div class="testimonyMeter">
+            ${data.lines.map((_,i)=>`<span class="${i===lineIndex?"on":""}"></span>`).join("")}
+          </div>
+          ${msg(warning)}
+          <div class="actions">
+            <button class="btn" id="localPrev" ${lineIndex===0?"disabled":""}>이전 발언</button>
+            <button class="btn primary objectionBtn" id="localObject">이의제기</button>
+            <button class="btn" id="localNext" ${lineIndex===data.lines.length-1?"disabled":""}>다음 발언</button>
+          </div>
+        </div>
+      </div>`;
+    $("localPrev").onclick = ()=>{ lineIndex = Math.max(0, lineIndex-1); renderLine(); };
+    $("localNext").onclick = ()=>{ lineIndex = Math.min(data.lines.length-1, lineIndex+1); renderLine(); };
+    $("localObject").onclick = ()=>{
+      if(lineIndex === data.contradictionIndex) renderEvidence();
+      else renderLine("지금은 아니다. 아직 찌를 지점이 보이지 않는다.");
+    };
+  }
+
+  function renderEvidence(warning=""){
+    const evidenceChoices = [
+      {id:data.evidenceId, label:data.evidenceLabel},
+      {id:"deckPhoto", label:"갑판 사진 묶음"},
+      {id:"loungeCup", label:"라운지 잔 기록"}
+    ];
+    $("puzzleRoot").innerHTML = pTitle("증거 제시") + `
+      <div class="dialogueLayout">
+        <div class="vnPortraitWrap">
+          <img class="vnPortrait" src="${portraitSrc(data.profile, data.expression)}" alt="${data.speaker}">
+        </div>
+        <div class="vnBox">
+          <div class="vnName">${data.speaker}</div>
+          <div class="dialogue">
+            “${data.lines[lineIndex]}”<br><br>
+            이 말에 맞서는 기록을 꺼낸다.
+          </div>
+          <div class="row compactRow" id="localEvidence"></div>
+          ${msg(warning)}
+          <div class="actions">
+            <button class="btn" id="backToLocalLine">발언으로 돌아가기</button>
+          </div>
+        </div>
+      </div>`;
+    evidenceChoices.forEach(choice=>{
+      const c = clues[choice.id];
+      const b = document.createElement("button");
+      b.className = "clueCard";
+      b.innerHTML = `<img src="${A(c.img)}" alt=""><span>${choice.label}</span>`;
+      b.onclick = ()=>{
+        if(choice.id === data.evidenceId) renderResult();
+        else renderEvidence("이 기록으로는 부족하다.");
+      };
+      $("localEvidence").appendChild(b);
+    });
+    $("backToLocalLine").onclick = ()=>renderLine();
+  }
+
+  function renderResult(){
+    renderPlayerMonologue(`${data.title} 기록`, [data.result], "기록에 남긴다", ()=>{
+      pass(key, data.notes, data.grantIds, null);
+      closePuzzle();
+    });
+  }
+
+  renderLine();
+  $("puzzleModal").classList.remove("hidden");
+}
+
+function medical(){ runLocalInterrogation("medical"); }
+function corridor(){ runLocalInterrogation("corridor"); }
+function cabin(){ runLocalInterrogation("cabin"); }
+function office(){ runLocalInterrogation("office"); }
+
+// 최종 용의자 소집: 발언 중엔 용의자, 증거 후 정리는 내 독백으로 전환
+function openTruth(){
+  let step=0;
+  const rounds=[
+    {
+      speaker:'강하나', profile:'kang', evidence:'라운지 잔 기록', evidenceId:'loungeCup',
+      lines:[
+        '최태오 대표가 마시던 잔에는 손댄 적 없습니다.',
+        '제가 그 사람에게 원한을 품을 이유도 없어요.',
+        '저는 그냥 초청장을 받고 배에 오른 손님일 뿐입니다.'
+      ],
+      expressions:['side','shaken','neutral'], contradictionIndex:0,
+      result:'라운지 잔 기록이 강하나의 말을 흔든다. 가족 편지와 부작용 보고서까지 겹친다. 그녀는 단순한 초청객이 아니었다. 최태오의 상태 이상은 여기서 시작됐다.'
+    },
+    {
+      speaker:'이민정', profile:'lee', evidence:'문손잡이 흔적', evidenceId:'handle',
+      lines:[
+        '저는 객실 안으로 들어가지 않았습니다.',
+        '최태오 대표와 직접 대면한 적도 없어요.',
+        '그가 쓰러진 뒤에야 상황을 알았습니다.'
+      ],
+      expressions:['guarded','sad','neutral'], contradictionIndex:0,
+      result:'문손잡이 흔적과 객실 앞 발자국이 이민정의 말을 막아선다. 그녀는 최태오를 직접 찾아갔다. 그리고 객실 안에서 그와 마주했다.'
+    },
+    {
+      speaker:'황세준', profile:'hwang', evidence:'접근 로그', evidenceId:'hwangAccess',
+      lines:[
+        '통신실은 제 권한 밖입니다.',
+        '보고가 멈춘 건 시스템 문제였을 겁니다.',
+        '저는 그저 행사 운영을 맡았을 뿐입니다.'
+      ],
+      expressions:['worried','cold','neutral'], contradictionIndex:0,
+      result:'접근 로그가 남아 있다. 황세준은 통신실 밖에 있던 사람이 아니다. 보고가 멈춘 시간, 내부 압박 문서, 운영 계약서가 하나로 이어진다. 마지막 침묵은 여기서 만들어졌다.'
+    }
+  ];
+
+  function renderLine(lineIndex=0, warning=""){
+    const r=rounds[step];
+    const expr=r.expressions[lineIndex]||"neutral";
+    $("puzzleRoot").innerHTML = pTitle(`용의자 소집 ${step+1}/3`) + `
+      <div class="summonScene">
+        <img src="${A('scene-suspect-gathering.png')}" alt="">
+        <button class="nameTag kang">강하나</button>
+        <button class="nameTag lee">이민정</button>
+        <button class="nameTag hwang">황세준</button>
+      </div>
+      <div class="dialogueLayout">
+        <div class="vnPortraitWrap">
+          <img class="vnPortrait" src="${portraitSrc(r.profile, expr)}" alt="${r.speaker}">
+        </div>
+        <div class="vnBox">
+          <div class="vnName">${r.speaker}</div>
+          <div class="dialogue">“${r.lines[lineIndex]}”</div>
+          <div class="testimonyMeter">
+            ${r.lines.map((_,i)=>`<span class="${i===lineIndex?"on":""}"></span>`).join("")}
+          </div>
+          ${msg(warning)}
+          <div class="actions">
+            <button class="btn" id="truthPrev" ${lineIndex===0?"disabled":""}>이전 발언</button>
+            <button class="btn primary objectionBtn" id="truthObject">이의제기</button>
+            <button class="btn" id="truthNext" ${lineIndex===r.lines.length-1?"disabled":""}>다음 발언</button>
+          </div>
+        </div>
+      </div>`;
+    bindNameTags();
+    $("truthPrev").onclick=()=>renderLine(Math.max(0,lineIndex-1));
+    $("truthNext").onclick=()=>renderLine(Math.min(r.lines.length-1,lineIndex+1));
+    $("truthObject").onclick=()=>{
+      if(lineIndex===r.contradictionIndex) renderEvidence(lineIndex);
+      else renderLine(lineIndex, "지금은 아니다. 아직 찌를 지점이 보이지 않는다.");
+    };
+  }
+
+  function renderEvidence(lineIndex, warning=""){
+    const r=rounds[step];
+    const choices=[
+      {label:r.evidence,id:r.evidenceId},
+      {label:"갑판 사진 묶음",id:"deckPhoto"},
+      {label:"의무 기록지",id:"medicalLog"}
+    ];
+    $("puzzleRoot").innerHTML=pTitle("증거 제시")+`
+      <div class="dialogueLayout">
+        <div class="vnPortraitWrap">
+          <img class="vnPortrait" src="${portraitSrc(r.profile, r.expressions[lineIndex]||'neutral')}" alt="${r.speaker}">
+        </div>
+        <div class="vnBox">
+          <div class="vnName">${r.speaker}</div>
+          <div class="dialogue">“${r.lines[lineIndex]}”<br><br>이 말에 맞서는 기록을 꺼낸다.</div>
+          <div class="row compactRow" id="truthEvidence"></div>
+          ${msg(warning)}
+          <div class="actions"><button class="btn" id="truthBack">발언으로 돌아가기</button></div>
+        </div>
+      </div>`;
+    choices.forEach(ch=>{
+      const c=clues[ch.id];
+      const b=document.createElement("button");
+      b.className="clueCard";
+      b.innerHTML=`<img src="${A(c.img)}" alt=""><span>${ch.label}</span>`;
+      b.onclick=()=>ch.id===r.evidenceId?renderResult():renderEvidence(lineIndex, "이 기록으로는 부족하다.");
+      $("truthEvidence").appendChild(b);
+    });
+    $("truthBack").onclick=()=>renderLine(lineIndex);
+  }
+
+  function renderResult(){
+    const r=rounds[step];
+    note(`${r.speaker} / 발언의 틈 확인`);
+    renderPlayerMonologue("내 기록", [r.result], step===rounds.length-1?"통신실로":"다음 증언", ()=>{
+      step++;
+      if(step>=rounds.length){
+        state.truth=true;
+        if(!state.unlocked.includes("communication")) state.unlocked.push("communication");
+        note("진상 확인 / 세 사람의 발언과 기록");
+        save(); render(); closePuzzle(); toast("통신실 해금");
+      }else renderLine(0);
+    });
+  }
+
+  function bindNameTags(){
+    const k=document.querySelector(".nameTag.kang");
+    const l=document.querySelector(".nameTag.lee");
+    const h=document.querySelector(".nameTag.hwang");
+    if(k) k.onclick=()=>openProfile("kang");
+    if(l) l.onclick=()=>openProfile("lee");
+    if(h) h.onclick=()=>openProfile("hwang");
+  }
+
+  renderLine(0);
+  $("puzzleModal").classList.remove("hidden");
+}

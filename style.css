@@ -350,3 +350,45 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,"Noto S
 .summaryText p{
   margin:0 0 18px;
 }
+
+
+/* clear monologue panels */
+.monologuePanel{
+  border:1px solid rgba(201,155,90,.42);
+  background:linear-gradient(180deg,rgba(5,15,25,.88),rgba(0,0,0,.34));
+  padding:22px;
+  max-width:920px;
+  margin:0 auto;
+  box-shadow:inset 0 0 30px rgba(25,211,197,.04);
+}
+.monoLabel{
+  display:inline-block;
+  margin-bottom:14px;
+  padding:7px 13px;
+  border:1px solid rgba(201,155,90,.5);
+  background:rgba(0,0,0,.42);
+  color:var(--gold);
+  letter-spacing:.08em;
+}
+.monologueText{
+  min-height:150px;
+  line-height:1.85;
+  font-size:20px;
+  color:#efe6d8;
+}
+.monoMeter{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:18px 0 6px;
+}
+.monoMeter span{
+  width:30px;
+  height:5px;
+  border:1px solid rgba(201,155,90,.45);
+  background:rgba(255,255,255,.08);
+}
+.monoMeter span.on{
+  background:var(--gold);
+  border-color:var(--gold);
+}
