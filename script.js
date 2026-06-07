@@ -526,310 +526,230 @@ function deck() {
   draw();
 }
 
-function lounge() {
-  const image = A("clue-lounge-seat-map(1).jpg");
-  let tiles = [
-    { id: 0, pos: "0% 0%" },
-    { id: 1, pos: "100% 0%" },
-    { id: 2, pos: "0% 100%" },
-    { id: 3, pos: "100% 100%" }
-  ].sort(() => Math.random() - .5);
-  let selected = null;
+function lounge(){
+  const image=A("clue-lounge-seat-map(1).jpg");
+  let tiles=[{id:0,pos:"0% 0%"},{id:1,pos:"100% 0%"},{id:2,pos:"0% 100%"},{id:3,pos:"100% 100%"}].sort(()=>Math.random()-.5);
+  let selected=null;
+  let archive="";
 
-  function draw(error = "") {
-    $("puzzleRoot").innerHTML =
-      pTitle("좌석 배치도 복원") +
-      `<div class="row">
-        <div class="tile-board" id="tileBoard" style="--img:url('${image}')"></div>
-      </div>` +
-      msg(error) +
+  function drawMap(error=""){
+    $("puzzleRoot").innerHTML=pTitle("라운지 좌석 배치도")+`
+      <div class="row">
+        <div class="card"><img src="${A("clue-lounge-seat-map(1).jpg")}" alt=""><div>현재 사건 / 좌석 배치도</div></div>
+        <div class="card"><img src="${A("motive-kang-family-letter.jpg")}" alt=""><div>과거 기록 / 가족 편지</div></div>
+      </div>
+      <div class="row"><div class="tile-board" id="tileBoard" style="--img:url('${image}')"></div></div>`+
+      msg(error)+
       `<div class="actions">
         <button class="btn" id="shuffleTiles">섞기</button>
         <button class="btn primary" id="checkTiles">도면 확인</button>
       </div>`;
 
-    tiles.forEach((t, i) => {
-      const b = document.createElement("button");
-      b.className = `tile ${selected === i ? "sel" : ""}`;
-      b.style.backgroundPosition = t.pos;
-      b.onclick = () => {
-        if (selected === null) {
-          selected = i;
-        } else {
-          [tiles[selected], tiles[i]] = [tiles[i], tiles[selected]];
-          selected = null;
-        }
-        draw();
+    tiles.forEach((t,i)=>{
+      const b=document.createElement("button");
+      b.className=`tile ${selected===i?"sel":""}`;
+      b.style.backgroundPosition=t.pos;
+      b.onclick=()=>{
+        if(selected===null) selected=i;
+        else{[tiles[selected],tiles[i]]=[tiles[i],tiles[selected]];selected=null}
+        drawMap();
       };
       $("tileBoard").appendChild(b);
     });
 
-    $("shuffleTiles").onclick = () => {
-      tiles.sort(() => Math.random() - .5);
-      selected = null;
-      draw();
-    };
-
-    $("checkTiles").onclick = () => {
-      if (tiles.map(t => t.id).join("") === "0123") {
-        markSolved("lounge", ["좌석 배치도 / 도면 복원"]);
-      } else {
-        draw("도면 조각 불일치");
-      }
+    $("shuffleTiles").onclick=()=>{tiles.sort(()=>Math.random()-.5);selected=null;drawMap()};
+    $("checkTiles").onclick=()=>{
+      if(tiles.map(t=>t.id).join("")==="0123"){drawArchive()}
+      else drawMap("도면 조각 불일치");
     };
   }
 
-  draw();
+  function drawArchive(error=""){
+    $("puzzleRoot").innerHTML=pTitle("라운지 봉투 기록")+`
+      <div class="row">
+        <div class="card"><img src="${A("motive-kang-family-letter.jpg")}" alt=""><div>과거 기록 / 가족 편지</div></div>
+        <div class="card"><img src="${A("motive-kang-medical-record.jpg")}" alt=""><div>과거 기록 / 의료 기록</div></div>
+        <div class="card"><img src="${A("suspect-kang-hana-file.jpg")}" alt=""><div>인물 파일 / S-01</div></div>
+      </div>
+      <div class="slot">봉투에 같이 묶인 기록 코드: ${archive||"선택 대기"}</div>
+      <div class="row" id="archiveChoices"></div>`+
+      msg(error)+
+      `<div class="actions">
+        <button class="btn" id="backMap">도면으로</button>
+        <button class="btn primary" id="checkArchive">봉투 확인</button>
+      </div>`;
+
+    ["M-22-0614","B-07","CR-07"].forEach(x=>option("archiveChoices",x,archive===x,()=>{archive=x;drawArchive()}));
+    $("backMap").onclick=()=>drawMap();
+    $("checkArchive").onclick=()=>{
+      if(archive==="M-22-0614"){
+        markSolved("lounge",["좌석 배치도 / 도면 복원","M-22-0614 / 가족 편지","강하나 / 피해자 회사와 과거 연결"]);
+      } else drawArchive("기록 코드 불일치");
+    };
+  }
+
+  drawMap();
 }
 
-function medical() {
-  let left = false;
-  let mid = false;
-  let record = "";
-
-  function draw(error = "") {
-    $("puzzleRoot").innerHTML =
-      pTitle("누락 슬롯 확인") +
-      `<div class="row">
-        <div class="card"><img src="${A("clue-medical-missing-drug.jpg")}" alt=""><div>약품 케이스</div></div>
-        <div class="card"><img src="${A("clue-medical-log.jpg")}" alt=""><div>의료 기록</div></div>
-        <div class="card"><img src="${A("motive-kang-side-effect-report.jpg")}" alt=""><div>AP-22-0917</div></div>
+function medical(){
+  let left=false, mid=false, record="", drug="";
+  function draw(error=""){
+    $("puzzleRoot").innerHTML=pTitle("의무실 기록 대조")+`
+      <div class="row">
+        <div class="card"><img src="${A("clue-medical-missing-drug.jpg")}" alt=""><div>현재 사건 / 약품 케이스</div></div>
+        <div class="card"><img src="${A("clue-medical-log.jpg")}" alt=""><div>현재 사건 / 의무 기록</div></div>
+        <div class="card"><img src="${A("motive-kang-medical-record.jpg")}" alt=""><div>과거 기록 / MR-22-0614</div></div>
+        <div class="card"><img src="${A("motive-kang-side-effect-report.jpg")}" alt=""><div>과거 보고서 / AP-22-0917</div></div>
       </div>
       <div class="row">
-        <button id="slotLeft" class="slot ${left ? "filled" : ""}">빈 슬롯 01</button>
-        <button id="slotMid" class="slot ${mid ? "filled" : ""}">빈 슬롯 02</button>
-        <button class="slot">약병 보관</button>
+        <button id="slotLeft" class="slot ${left?"filled":""}">빈 슬롯 01</button>
+        <button id="slotMid" class="slot ${mid?"filled":""}">빈 슬롯 02</button>
+        <button class="slot">보관 슬롯</button>
       </div>
-      <div class="slot">기록 표식: ${record || "선택 대기"}</div>
-      <div class="row" id="recordMarks"></div>` +
-      msg(error) +
+      <div class="slot">보고서 표식: ${record||"선택 대기"}</div>
+      <div class="row" id="recordMarks"></div>
+      <div class="slot">연결 약물 코드: ${drug||"선택 대기"}</div>
+      <div class="row" id="drugMarks"></div>`+
+      msg(error)+
       `<div class="actions">
         <button class="btn" id="clearMedical">초기화</button>
-        <button class="btn primary" id="checkMedical">슬롯 확인</button>
+        <button class="btn primary" id="checkMedical">기록 대조</button>
       </div>`;
 
-    $("slotLeft").onclick = () => {
-      left = !left;
-      draw();
-    };
-    $("slotMid").onclick = () => {
-      mid = !mid;
-      draw();
-    };
+    $("slotLeft").onclick=()=>{left=!left;draw()};
+    $("slotMid").onclick=()=>{mid=!mid;draw()};
+    ["ARCHIVED","CONFIDENTIAL","REJECTED"].forEach(x=>option("recordMarks",x,record===x,()=>{record=x;draw()}));
+    ["NVX-201","AG-204","GF-72"].forEach(x=>option("drugMarks",x,drug===x,()=>{drug=x;draw()}));
 
-    ["ARCHIVED", "CONFIDENTIAL", "REJECTED"].forEach(x => {
-      option("recordMarks", x, record === x, () => {
-        record = x;
-        draw();
-      });
-    });
-
-    $("clearMedical").onclick = () => {
-      left = false;
-      mid = false;
-      record = "";
-      draw();
-    };
-
-    $("checkMedical").onclick = () => {
-      if (left && mid && record === "REJECTED") {
-        markSolved("medical", ["빈 슬롯 01-02", "REJECTED / AP-22-0917", "MR-22-0614", "M-22-0614"]);
-      } else {
-        draw("슬롯 또는 표식 불일치");
-      }
+    $("clearMedical").onclick=()=>{left=false;mid=false;record="";drug="";draw()};
+    $("checkMedical").onclick=()=>{
+      if(left&&mid&&record==="REJECTED"&&drug==="NVX-201"){
+        markSolved("medical",["빈 슬롯 01-02","NVX-201 / 이상 반응 기록","REJECTED / AP-22-0917","강하나 / 가족의 부작용 피해 기록"]);
+      } else draw("슬롯, 표식, 약물 코드 중 불일치");
     };
   }
-
   draw();
 }
 
-function corridor() {
-  let path = [];
+function corridor(){
+  let path=[], past="";
+  const dots=[{id:1,x:55,y:16},{id:2,x:58,y:38},{id:3,x:43,y:61},{id:4,x:55,y:83}];
 
-  const dots = [
-    { id: 1, x: 55, y: 16 },
-    { id: 2, x: 58, y: 38 },
-    { id: 3, x: 43, y: 61 },
-    { id: 4, x: 55, y: 83 }
-  ];
-
-  function draw(error = "") {
-    $("puzzleRoot").innerHTML =
-      pTitle("흔적 경로 입력") +
-      `<div class="row">
+  function draw(error=""){
+    $("puzzleRoot").innerHTML=pTitle("복도 흔적 연결")+`
+      <div class="row">
         <div class="foot-board" id="footBoard"></div>
         <div>
-          <div class="card"><img src="${A("clue-corridor-handle.jpg")}" alt=""><div>손잡이 흔적</div></div>
-          <div class="slot">입력: ${path.join(" → ") || "대기"}</div>
+          <div class="card"><img src="${A("clue-corridor-handle.jpg")}" alt=""><div>현재 사건 / 손잡이</div></div>
+          <div class="card"><img src="${A("motive-lee-old-photo.jpg")}" alt=""><div>과거 접점 / 오래된 사진</div></div>
+          <div class="slot">발자국 입력: ${path.join(" → ")||"대기"}</div>
+          <div class="slot">사진 기록 코드: ${past||"선택 대기"}</div>
+          <div class="row" id="pastChoices"></div>
         </div>
-      </div>` +
-      msg(error) +
+      </div>`+
+      msg(error)+
       `<div class="actions">
         <button class="btn" id="clearPath">초기화</button>
-        <button class="btn primary" id="checkPath">경로 확인</button>
+        <button class="btn primary" id="checkPath">흔적 확인</button>
       </div>`;
 
-    dots.forEach(d => {
-      const b = document.createElement("button");
-      b.className = `foot-dot ${path.includes(d.id) ? "sel" : ""}`;
-      b.style.left = `${d.x}%`;
-      b.style.top = `${d.y}%`;
-      b.textContent = d.id;
-      b.onclick = () => {
-        if (!path.includes(d.id)) path.push(d.id);
-        draw();
-      };
+    dots.forEach(d=>{
+      const b=document.createElement("button");
+      b.className=`foot-dot ${path.includes(d.id)?"sel":""}`;
+      b.style.left=`${d.x}%`;b.style.top=`${d.y}%`;b.textContent=d.id;
+      b.onclick=()=>{if(!path.includes(d.id))path.push(d.id);draw()};
       $("footBoard").appendChild(b);
     });
 
-    $("clearPath").onclick = () => {
-      path = [];
-      draw();
-    };
-
-    $("checkPath").onclick = () => {
-      if (path.join("") === "1234") {
-        markSolved("corridor", ["발자국 / 1-2-3-4", "손잡이 / 지문 흔적"]);
-      } else {
-        draw("경로 불일치");
-      }
+    ["B-07","M-22-0614","CR-07"].forEach(x=>option("pastChoices",x,past===x,()=>{past=x;draw()}));
+    $("clearPath").onclick=()=>{path=[];past="";draw()};
+    $("checkPath").onclick=()=>{
+      if(path.join("")==="1234"&&past==="B-07"){
+        markSolved("corridor",["발자국 / 1-2-3-4","손잡이 / 지문 흔적","B-07 / 오래된 사진","이민정 / 피해자와 과거 접점"]);
+      } else draw("경로 또는 사진 기록 불일치");
     };
   }
-
   draw();
 }
 
-function cabin() {
-  let hour = 22;
-  let minuteA = 10;
-  let minuteB = 20;
-
-  function draw(error = "") {
-    $("puzzleRoot").innerHTML =
-      pTitle("호출 장치 복원") +
-      `<div class="row">
-        <div class="card"><img src="${A("clue-cabin-call-log.jpg")}" alt=""><div>호출 기록</div></div>
-        <div class="card"><img src="${A("clue-cabin-scene-trace.jpg")}" alt=""><div>현장 흔적</div></div>
-        <div class="card"><img src="${A("motive-lee-call-record.jpg")}" alt=""><div>통화 기록 01</div></div>
+function cabin(){
+  let hour=22,minuteA=10,minuteB=20, legal="";
+  function draw(error=""){
+    $("puzzleRoot").innerHTML=pTitle("객실 호출 기록")+`
+      <div class="row">
+        <div class="card"><img src="${A("clue-cabin-call-log.jpg")}" alt=""><div>현재 사건 / 호출 기록</div></div>
+        <div class="card"><img src="${A("clue-cabin-scene-trace.jpg")}" alt=""><div>현재 사건 / 충돌 흔적</div></div>
+        <div class="card"><img src="${A("motive-lee-call-record.jpg")}" alt=""><div>과거 기록 / 통화 기록</div></div>
+        <div class="card"><img src="${A("motive-lee-lawsuit-note.jpg")}" alt=""><div>과거 기록 / 진정서</div></div>
       </div>
       <div class="dial-wrap">
-        <div>
-          <div class="dial">${hour}</div>
-          <button class="opt" id="hourDown">-</button>
-          <button class="opt" id="hourUp">+</button>
-        </div>
-        <div>
-          <div class="dial">${String(minuteA).padStart(2, "0")}</div>
-          <button class="opt" id="aDown">-</button>
-          <button class="opt" id="aUp">+</button>
-        </div>
-        <div>
-          <div class="dial">${String(minuteB).padStart(2, "0")}</div>
-          <button class="opt" id="bDown">-</button>
-          <button class="opt" id="bUp">+</button>
-        </div>
+        <div><div class="dial">${hour}</div><button class="opt" id="hourDown">-</button><button class="opt" id="hourUp">+</button></div>
+        <div><div class="dial">${String(minuteA).padStart(2,"0")}</div><button class="opt" id="aDown">-</button><button class="opt" id="aUp">+</button></div>
+        <div><div class="dial">${String(minuteB).padStart(2,"0")}</div><button class="opt" id="bDown">-</button><button class="opt" id="bUp">+</button></div>
       </div>
-      <div class="slot">시간 범위: ${hour}:${String(minuteA).padStart(2, "0")} - ${hour}:${String(minuteB).padStart(2, "0")}</div>` +
-      msg(error) +
+      <div class="slot">호출 공백: ${hour}:${String(minuteA).padStart(2,"0")} - ${hour}:${String(minuteB).padStart(2,"0")}</div>
+      <div class="slot">진정서 표식: ${legal||"선택 대기"}</div>
+      <div class="row" id="legalChoices"></div>`+
+      msg(error)+
       `<div class="actions">
         <button class="btn" id="resetDial">초기화</button>
-        <button class="btn primary" id="checkDial">장치 확인</button>
+        <button class="btn primary" id="checkDial">기록 확인</button>
       </div>`;
 
-    $("hourDown").onclick = () => {
-      hour = Math.max(21, hour - 1);
-      draw();
-    };
-    $("hourUp").onclick = () => {
-      hour = Math.min(23, hour + 1);
-      draw();
-    };
-    $("aDown").onclick = () => {
-      minuteA = Math.max(0, minuteA - 1);
-      draw();
-    };
-    $("aUp").onclick = () => {
-      minuteA = Math.min(59, minuteA + 1);
-      draw();
-    };
-    $("bDown").onclick = () => {
-      minuteB = Math.max(0, minuteB - 1);
-      draw();
-    };
-    $("bUp").onclick = () => {
-      minuteB = Math.min(59, minuteB + 1);
-      draw();
-    };
+    $("hourDown").onclick=()=>{hour=Math.max(21,hour-1);draw()};
+    $("hourUp").onclick=()=>{hour=Math.min(23,hour+1);draw()};
+    $("aDown").onclick=()=>{minuteA=Math.max(0,minuteA-1);draw()};
+    $("aUp").onclick=()=>{minuteA=Math.min(59,minuteA+1);draw()};
+    $("bDown").onclick=()=>{minuteB=Math.max(0,minuteB-1);draw()};
+    $("bUp").onclick=()=>{minuteB=Math.min(59,minuteB+1);draw()};
+    ["접수 보류","반려","기록 불충분"].forEach(x=>option("legalChoices",x,legal===x,()=>{legal=x;draw()}));
 
-    $("resetDial").onclick = () => {
-      hour = 22;
-      minuteA = 10;
-      minuteB = 20;
-      draw();
-    };
-
-    $("checkDial").onclick = () => {
-      if (hour === 22 && minuteA === 15 && minuteB === 22) {
-        markSolved("cabin", ["22:15-22:22 / 호출 공백", "객실 현장 / 파손 흔적", "B-07", "통화 기록 01", "AC-0917"]);
-      } else {
-        draw("시간 범위 불일치");
-      }
+    $("resetDial").onclick=()=>{hour=22;minuteA=10;minuteB=20;legal="";draw()};
+    $("checkDial").onclick=()=>{
+      if(hour===22&&minuteA===15&&minuteB===22&&legal==="반려"){
+        markSolved("cabin",["22:15-22:22 / 호출 공백","객실 현장 / 파손 흔적","진정서 / 반려","이민정 / 직접 부작용 피해와 대면"]);
+      } else draw("시간 범위 또는 진정서 표식 불일치");
     };
   }
-
   draw();
 }
 
-function office() {
-  let input = "";
-
-  function draw(error = "") {
-    $("puzzleRoot").innerHTML =
-      pTitle("문서 금고 해제") +
-      `<div class="row">
-        <div class="card"><img src="${A("motive-hwang-access-log.jpg")}" alt=""><div>CR-07</div></div>
-        <div class="card"><img src="${A("clue-office-email-print.jpg")}" alt=""><div>이메일 출력물</div></div>
-        <div class="card"><img src="${A("clue-office-threat-note.jpg")}" alt=""><div>경고 메모</div></div>
-        <div class="card"><img src="${A("motive-hwang-contract.jpg")}" alt=""><div>AC-VIP-OP-2410</div></div>
+function office(){
+  let input="", link="";
+  function draw(error=""){
+    $("puzzleRoot").innerHTML=pTitle("사무실 금고와 내부 문서")+`
+      <div class="row">
+        <div class="card"><img src="${A("clue-office-email-print.jpg")}" alt=""><div>현재 사건 / 이메일</div></div>
+        <div class="card"><img src="${A("clue-office-threat-note.jpg")}" alt=""><div>현재 사건 / 경고 메모</div></div>
+        <div class="card"><img src="${A("motive-hwang-contract.jpg")}" alt=""><div>과거 계약 / AC-VIP-OP-2410</div></div>
+        <div class="card"><img src="${A("motive-hwang-access-log.jpg")}" alt=""><div>접근 로그 / CR-07</div></div>
+        <div class="card"><img src="${A("motive-hwang-blackmail-file.jpg")}" alt=""><div>내부 압박 / MEMO</div></div>
       </div>
-      <div class="safe">
-        <div class="safe-display">${input || "----"}</div>
-        <div id="keypad" class="keypad"></div>
-      </div>` +
-      msg(error) +
+      <div class="safe"><div class="safe-display">${input||"----"}</div><div id="keypad" class="keypad"></div></div>
+      <div class="slot">접근 ID: ${link||"선택 대기"}</div>
+      <div class="row" id="linkChoices"></div>`+
+      msg(error)+
       `<div class="actions">
         <button class="btn" id="clearSafe">초기화</button>
         <button class="btn primary" id="openSafe">금고 해제</button>
       </div>`;
 
-    ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "←", "OK"].forEach(n => {
-      const b = document.createElement("button");
-      b.textContent = n;
-      b.onclick = () => {
-        if (n === "←") input = input.slice(0, -1);
-        else if (n === "OK") check();
-        else if (input.length < 4) input += n;
-        draw();
-      };
+    ["0","1","2","3","4","5","6","7","8","9","←","OK"].forEach(n=>{
+      const b=document.createElement("button");
+      b.textContent=n;
+      b.onclick=()=>{if(n==="←")input=input.slice(0,-1);else if(n==="OK")check();else if(input.length<4)input+=n;draw()};
       $("keypad").appendChild(b);
     });
+    ["C-0418","C-0721","MC-0771"].forEach(x=>option("linkChoices",x,link===x,()=>{link=x;draw()}));
+    $("clearSafe").onclick=()=>{input="";link="";draw()};
+    $("openSafe").onclick=check;
 
-    $("clearSafe").onclick = () => {
-      input = "";
-      draw();
-    };
-
-    $("openSafe").onclick = check;
-
-    function check() {
-      if (input === "0418") {
-        markSolved("office", ["C-0418 / 통신실 접근", "DO NOT REPORT", "AC-VIP-OP-2410", "INTERNAL MEMO"]);
-      } else {
-        draw("코드 불일치");
-      }
+    function check(){
+      if(input==="0418"&&link==="C-0418"){
+        markSolved("office",["C-0418 / 통신실 접근","DO NOT REPORT","AC-VIP-OP-2410","황세준 / 최태오 회사 내부자와 압박 문서"]);
+      } else draw("금고 코드 또는 접근 ID 불일치");
     }
   }
-
   draw();
 }
 

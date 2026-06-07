@@ -805,3 +805,16 @@ video {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* story-puzzle-fix: 퍼즐 안에서 현 사건 단서와 과거 기록이 함께 보이도록 확대 */
+.puzzle-box .card img {
+  width: 176px;
+  height: 118px;
+}
+.puzzle-box .card {
+  max-width: 198px;
+}
+.puzzle-box .slot {
+  line-height: 1.55;
+}
