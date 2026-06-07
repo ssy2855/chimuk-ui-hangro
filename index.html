@@ -7,109 +7,102 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <section id="home" class="home screen">
-    <div class="home-dim"></div>
-    <main class="home-card">
+  <section id="home" class="screen home">
+    <div class="homeDim"></div>
+    <main class="homeCard">
       <p class="overline">MIDNIGHT OCEAN CRUISE</p>
       <h1>침묵의 항로</h1>
       <p class="subtitle">SILENT ROUTE</p>
-
-      <div class="trailer-frame">
+      <div class="trailerFrame">
         <video src="trailer.mp4" controls muted playsinline poster="assets/hero-cruise.jpg"></video>
       </div>
-
-      <div class="home-actions">
-        <button id="newGameBtn" class="btn primary">사건 조사 시작</button>
-        <button id="continueBtn" class="btn">저장 기록 불러오기</button>
-        <button id="resetBtn" class="btn danger">기록 초기화</button>
+      <div class="btnRow">
+        <button id="newGame" class="btn primary">사건 조사 시작</button>
+        <button id="continueGame" class="btn">저장 기록 불러오기</button>
+        <button id="resetGame" class="btn danger">기록 초기화</button>
       </div>
     </main>
   </section>
 
-  <section id="game" class="game screen hidden">
+  <section id="game" class="screen game hidden">
     <header class="topbar">
-      <div class="top-left">
+      <div>
         <h2 id="placeTitle">갑판</h2>
         <p id="placeGoal">촬영 기록 배열</p>
       </div>
-
-      <div class="progress-wrap">
+      <div class="progressWrap">
         <span id="progressText">0%</span>
-        <div class="progress-track"><div id="progressBar"></div></div>
+        <div class="progressTrack"><div id="progressBar"></div></div>
       </div>
-
-      <div class="top-actions">
-        <button id="truthBtn" class="btn small hidden">용의자 소집</button>
+      <div class="topBtns">
+        <button id="summonTop" class="btn small hidden">용의자 소집</button>
         <button id="homeBtn" class="btn small">표지</button>
       </div>
     </header>
 
     <main class="layout">
-      <aside class="panel left-panel">
+      <aside class="panel">
         <h3>수집 기록</h3>
         <div id="inventory" class="scroll"></div>
       </aside>
 
-      <section class="stage-column">
+      <section class="stageCol">
         <div id="stage" class="stage">
-          <img id="placeImage" class="place-image" src="" alt="" />
-          <div id="hotspotLayer" class="hotspot-layer"></div>
+          <img id="placeImage" class="placeImage" src="" alt="">
+          <div id="hotspots" class="hotspots"></div>
         </div>
-
-        <footer class="bottom-bar">
-          <nav id="placeNav" class="place-nav"></nav>
+        <footer class="bottom">
+          <nav id="placeNav" class="placeNav"></nav>
           <button id="puzzleBtn" class="btn primary">잠금 장치 확인</button>
         </footer>
       </section>
 
-      <aside class="panel right-panel">
+      <aside class="panel">
         <h3>인물 파일</h3>
-        <div class="profile-buttons">
+        <div class="profileBtns">
           <button class="profileBtn" data-profile="kang">강하나</button>
           <button class="profileBtn" data-profile="lee">이민정</button>
           <button class="profileBtn" data-profile="hwang">황세준</button>
           <button class="profileBtn" data-profile="choi">최태오</button>
         </div>
-
-        <h3 class="note-title">사건 노트</h3>
-        <div id="notes" class="scroll note-scroll"></div>
+        <h3 class="noteTitle">사건 노트</h3>
+        <div id="notes" class="scroll notesScroll"></div>
       </aside>
     </main>
   </section>
 
-  <section id="ending" class="ending screen hidden">
-    <div class="ending-card">
-      <img id="endingImage" src="" alt="" />
+  <section id="ending" class="screen ending hidden">
+    <div class="endingCard">
+      <img id="endingImage" src="" alt="">
       <h2 id="endingTitle">송신 완료</h2>
-      <p id="endingSubtitle">항로 잠금 해제</p>
-      <div class="ending-actions">
-        <button id="truthSummaryBtn" class="btn primary hidden">사건 전말 보기</button>
-        <button id="backGameBtn" class="btn">기록으로 돌아가기</button>
-        <button id="endingHomeBtn" class="btn">처음으로</button>
+      <p id="endingSub">항로 잠금 해제</p>
+      <div class="btnRow">
+        <button id="truthSummary" class="btn primary hidden">사건 전말 보기</button>
+        <button id="backGame" class="btn">기록으로 돌아가기</button>
+        <button id="endingHome" class="btn">처음으로</button>
       </div>
     </div>
   </section>
 
   <div id="imageModal" class="modal hidden">
-    <div class="modal-dim" data-close="imageModal"></div>
-    <div class="modal-box image-box">
+    <div class="dim" data-close="imageModal"></div>
+    <div class="modalBox imageBox">
       <button class="close" data-close="imageModal">×</button>
-      <h2 id="modalTitle"></h2>
-      <img id="modalImage" src="" alt="" />
-      <p id="modalCaption"></p>
+      <h2 id="imageTitle"></h2>
+      <img id="imageFull" src="" alt="">
+      <div id="imageCaption"></div>
     </div>
   </div>
 
   <div id="puzzleModal" class="modal hidden">
-    <div class="modal-dim"></div>
-    <div class="modal-box puzzle-box">
-      <button id="closePuzzleBtn" class="close">×</button>
+    <div class="dim"></div>
+    <div class="modalBox puzzleBox">
+      <button id="closePuzzle" class="close">×</button>
       <div id="puzzleRoot"></div>
     </div>
   </div>
 
   <div id="toast" class="toast hidden"></div>
-
   <script src="script.js"></script>
 </body>
 </html>
