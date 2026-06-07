@@ -1,22 +1,22 @@
 const A=n=>`assets/${n}`;
 
 const places=[
-{id:"deck",title:"갑판",img:"space-deck.jpg",goal:"촬영 기록 배열",puzzle:"deck",req:["deckPhoto","deckNote"],hs:[["deckPhoto",34,66],["deckNote",63,70]]},
-{id:"lounge",title:"라운지",img:"space-lounge.jpg",goal:"좌석 배치도 복원",puzzle:"lounge",req:["loungeMap"],hs:[["loungeMap",28,63],["loungeCup",66,61]]},
-{id:"medical",title:"의무실",img:"space-medical.jpg",goal:"의료 파일 분류",puzzle:"medical",req:["medicalLog","medicalDrug"],hs:[["medicalLog",36,66],["medicalDrug",61,65]]},
-{id:"corridor",title:"복도",img:"space-corridor.jpg",goal:"흔적 방향 확인",puzzle:"corridor",req:["footprints","handle"],hs:[["footprints",43,74],["handle",73,52]]},
-{id:"cabin",title:"객실",img:"space-cabin.jpg",goal:"호출 공백 확인",puzzle:"cabin",req:["cabinTrace","cabinCall"],hs:[["cabinTrace",60,76],["cabinCall",78,55]]},
-{id:"office",title:"사무실",img:"space-office.jpg",goal:"문서 분류",puzzle:"office",req:["officeMail","officeThreat"],hs:[["officeMail",43,67],["officeThreat",67,63]]},
-{id:"communication",title:"통신실",img:"space-communication.jpg",goal:"송신 기록 복원",puzzle:"communication",req:["console","channel","transCode","routeLock"],hs:[["console",33,70],["channel",56,56],["transCode",24,62],["routeLock",70,58]]}
+{id:"deck",title:"갑판",img:"space-deck.jpg",goal:"촬영 기록 배열",puzzle:"deck",req:["deckPhoto","deckNote"],hs:[["deckPhoto",29,71],["deckNote",63,79]]},
+{id:"lounge",title:"라운지",img:"space-lounge.jpg",goal:"좌석 배치도 복원",puzzle:"lounge",req:["loungeMap"],hs:[["loungeMap",21,72],["loungeCup",61,72]]},
+{id:"medical",title:"의무실",img:"space-medical.jpg",goal:"의료 파일 분류",puzzle:"medical",req:["medicalLog","medicalDrug"],hs:[["medicalLog",32,65],["medicalDrug",70,66]]},
+{id:"corridor",title:"복도",img:"space-corridor.jpg",goal:"흔적 방향 확인",puzzle:"corridor",req:["footprints","handle"],hs:[["footprints",35,74],["handle",75,47]]},
+{id:"cabin",title:"객실",img:"space-cabin.jpg",goal:"호출 공백 확인",puzzle:"cabin",req:["cabinTrace","cabinCall"],hs:[["cabinTrace",56,74],["cabinCall",82,52]]},
+{id:"office",title:"사무실",img:"space-office.jpg",goal:"문서 분류",puzzle:"office",req:["officeMail","officeThreat"],hs:[["officeMail",39,67],["officeThreat",70,62]]},
+{id:"communication",title:"통신실",img:"space-communication.jpg",goal:"송신 기록 복원",puzzle:"communication",req:["console","channel","transCode","routeLock"],hs:[["console",29,70],["channel",54,53],["transCode",17,60],["routeLock",76,58]]}
 ];
 
 const routes={
-deck:{to:"lounge",label:"라운지로 이동",x:57,y:49},
-lounge:{to:"medical",label:"의무실로 이동",x:82,y:54},
-medical:{to:"corridor",label:"복도로 이동",x:15,y:55},
-corridor:{to:"cabin",label:"객실 712로 이동",x:74,y:50},
-cabin:{to:"office",label:"사무실로 이동",x:17,y:57},
-office:{to:"communication",label:"통신실로 이동",x:79,y:56}
+deck:{to:"lounge",label:"라운지로 이동",x:90,y:56},
+lounge:{to:"medical",label:"의무실로 이동",x:8,y:56},
+medical:{to:"corridor",label:"복도로 이동",x:14,y:57},
+corridor:{to:"cabin",label:"객실 712로 이동",x:89,y:56},
+cabin:{to:"office",label:"사무실로 이동",x:10,y:57},
+office:{to:"communication",label:"통신실로 이동",x:88,y:56}
 };
 
 const clues={
@@ -70,7 +70,7 @@ function renderPlace(){
  renderRoute(p);renderCaseEvent();
  $("puzzleBtn").disabled=!p.req.every(has);$("puzzleBtn").textContent=solved(p.puzzle)?"잠금 해제 완료":"잠금 장치 확인";
 }
-function renderRoute(p){const r=routes[p.id];if(!r)return;const open=state.unlocked.includes(r.to);const b=document.createElement("button");b.className=`exitZone ${open?"":"locked"}`;b.style.left=r.x+"%";b.style.top=r.y+"%";b.innerHTML=`<span>${open?r.label:"아직 열리지 않음"}</span>`;b.onclick=()=>{if(!open){toast("잠금 상태");return}state.place=r.to;save();render()};$("hotspots").appendChild(b)}
+function renderRoute(p){const r=routes[p.id];if(!r)return;const open=state.unlocked.includes(r.to);const b=document.createElement("button");b.className=`exitZone ${open?"":"locked"}`;b.style.left=r.x+"%";b.style.top=r.y+"%";b.innerHTML=`<span class="routeHint">${open?r.label:"아직 열리지 않음"}</span>`;b.onclick=()=>{if(!open){toast("잠금 상태");return}state.place=r.to;save();render()};$("hotspots").appendChild(b)}
 function renderCaseEvent(){if(canTruth()){const box=document.createElement("div");box.className="caseEvent";box.innerHTML=`<h3>용의자 소집 가능</h3><p>최태오의 마지막 동선, 객실 호출 공백, 외부 보고 차단 기록이 모두 모였다.</p><button id="sceneTruth" class="btn primary">용의자들을 부른다</button>`;$("hotspots").appendChild(box);$("sceneTruth").onclick=openTruth}}
 function renderNav(){$("placeNav").innerHTML="";places.forEach(p=>{const open=state.unlocked.includes(p.id);const b=document.createElement("button");b.className=`placeBtn ${open?"open":"locked"} ${state.place===p.id?"active":""}`;b.textContent=open?p.title:"잠김";b.disabled=!open;b.onclick=()=>{state.place=p.id;save();render()};$("placeNav").appendChild(b)})}
 function renderInv(){$("inventory").innerHTML="";state.got.forEach(id=>{const c=clues[id];if(c)addInv(c.title,A(c.thumb),()=>openImage(c.title,A(c.img),c.note))})}
@@ -84,7 +84,7 @@ function closePuzzle(){$("puzzleModal").classList.add("hidden")}
 function pTitle(t){return `<h2 class="pTitle">${t}</h2>`}
 function msg(t=""){return `<div class="msg">${t}</div>`}
 function option(parent,text,active,fn){const b=document.createElement("button");b.className=`opt ${active?"sel":""}`;b.textContent=text;b.onclick=fn;$(parent).appendChild(b)}
-function card(id,label){const c=clues[id];return `<button class="card" onclick="openImage('${c.title}','${A(c.img)}','${c.note}')"><img src="${A(c.img)}" alt=""><div>${label}</div><small>확대</small></button>`}
+function card(id,label){const c=clues[id];return `<button class="clueCard" onclick="openImage('${c.title}','${A(c.img)}','${c.note}')"><img src="${A(c.img)}" alt=""><span>${label}</span></button>`}
 function pass(puzzle,notes=[],grantIds=[],dialogueKey=null){if(!state.solved.includes(puzzle))state.solved.push(puzzle);notes.forEach(note);grant(grantIds);const p=places.find(x=>x.puzzle===puzzle);const n=p&&places[places.findIndex(x=>x.id===p.id)+1]?.id;if(n&&n!=="communication"&&!state.unlocked.includes(n))state.unlocked.push(n);save();render();toast("잠금 해제");if(dialogueKey)showDialogue(dialogueKey);else closePuzzle()}
 function openPuzzle(){const p=place();if(!p.req.every(has)){toast("기록 부족");return}builders[p.puzzle]();$("puzzleModal").classList.remove("hidden")}
 const builders={deck,lounge,medical,corridor,cabin,office,communication};
@@ -93,14 +93,59 @@ function deck(){const data=[{f:"puzzle-photo-a.jpg",l:"사진 A",t:"22:27"},{f:"
 
 function lounge(){const image=A("clue-lounge-seat-map(1).jpg");let tiles=[{id:0,pos:"0% 0%"},{id:1,pos:"100% 0%"},{id:2,pos:"0% 100%"},{id:3,pos:"100% 100%"}].sort(()=>Math.random()-.5);let sel=null;function draw(e=""){$("puzzleRoot").innerHTML=pTitle("좌석 배치도 복원")+`<div class="row">${card("loungeMap","현재 사건 / 좌석 배치도")}${card("kangLetter","해금 예정 / 가족 편지")}</div><div class="row"><div class="tileBoard" id="board" style="--img:url('${image}')"></div></div>`+msg(e)+`<div class="actions"><button class="btn" id="shuffle">섞기</button><button class="btn primary" id="check">도면 확인</button></div>`;tiles.forEach((t,i)=>{const b=document.createElement("button");b.className=`tile ${sel===i?"sel":""}`;b.style.backgroundPosition=t.pos;b.onclick=()=>{if(sel===null)sel=i;else{[tiles[sel],tiles[i]]=[tiles[i],tiles[sel]];sel=null}draw()};$("board").appendChild(b)});$("shuffle").onclick=()=>{tiles.sort(()=>Math.random()-.5);draw()};$("check").onclick=()=>tiles.map(t=>t.id).join("")==="0123"?pass("lounge",["좌석 배치도 / 도면 복원","강하나 / 가족 편지 기록"],["kangLetter"],"lounge"):draw("도면 조각 불일치")}draw()}
 
-function medical(){let current=[],past=[];function draw(e=""){$("puzzleRoot").innerHTML=pTitle("의료 파일 분류")+`<div class="row" id="cards"></div><div class="row"><div class="slot">현재 사건<br>${current.join(" / ")||"대기"}</div><div class="slot">과거 부작용 기록<br>${past.join(" / ")||"대기"}</div></div>`+msg(e)+`<div class="actions"><button class="btn" id="clear">초기화</button><button class="btn primary" id="check">분류 확인</button></div>`;[["medicalLog","의무 기록"],["medicalDrug","약품 누락"],["kangMedical","피해 의료 기록"],["kangLetter","가족 편지"],["kangReport","부작용 보고서"]].forEach(([id,label])=>{const d=document.createElement("div");d.className="card";d.innerHTML=`<img src="${A(clues[id].img)}"><div>${label}</div><button class="opt">현재</button><button class="opt">과거</button><button class="opt">확대</button>`;const bs=d.querySelectorAll("button");bs[0].onclick=()=>{if(!current.includes(id))current.push(id);past=past.filter(x=>x!==id);draw()};bs[1].onclick=()=>{if(!past.includes(id))past.push(id);current=current.filter(x=>x!==id);draw()};bs[2].onclick=()=>openImage(clues[id].title,A(clues[id].img),clues[id].note);$("cards").appendChild(d)});$("clear").onclick=()=>{current=[];past=[];draw()};$("check").onclick=()=>current.includes("medicalLog")&&current.includes("medicalDrug")&&past.includes("kangMedical")&&past.includes("kangLetter")&&past.includes("kangReport")?pass("medical",["현재 의료 기록 / 약품 누락","과거 부작용 기록 / 가족 편지 / 반려 보고서","강하나 / 부작용 피해자의 가족"],["kangMedical","kangReport"],"medical"):draw("분류 불일치")}draw()}
-
+function medical(){
+ let current=[],past=[];
+ const items=[["medicalLog","의무"],["medicalDrug","약품"],["kangMedical","의료"],["kangLetter","가족"],["kangReport","보고"]];
+ function setBucket(id,bucket){current=current.filter(x=>x!==id);past=past.filter(x=>x!==id);if(bucket==="current")current.push(id);else past.push(id)}
+ function draw(e=""){
+  $("puzzleRoot").innerHTML=pTitle("의료 파일 분류")+
+   `<div class="row compactRow" id="medCards"></div>`+
+   `<div class="row"><div class="slot ${current.length?"filled":""}">현재<br>${current.map(id=>clues[id].title).join(" · ")||"대기"}</div><div class="slot ${past.length?"filled":""}">과거<br>${past.map(id=>clues[id].title).join(" · ")||"대기"}</div></div>`+
+   msg(e)+
+   `<div class="actions"><button class="btn" id="clear">초기화</button><button class="btn primary" id="check">분류 확인</button></div>`;
+  items.forEach(([id,label])=>{
+    const d=document.createElement("div");
+    d.className="clueTile";
+    d.innerHTML=`<button class="zoomTile"><img src="${A(clues[id].img)}" alt=""><span>${label}</span></button><div class="pickBtns"><button class="miniBtn ${current.includes(id)?'sel':''}">현재</button><button class="miniBtn ${past.includes(id)?'sel':''}">과거</button></div>`;
+    d.querySelector('.zoomTile').onclick=()=>openImage(clues[id].title,A(clues[id].img),clues[id].note);
+    const bs=d.querySelectorAll('.miniBtn');
+    bs[0].onclick=()=>{setBucket(id,'current');draw()};
+    bs[1].onclick=()=>{setBucket(id,'past');draw()};
+    $("medCards").appendChild(d);
+  });
+  $("clear").onclick=()=>{current=[];past=[];draw()};
+  $("check").onclick=()=>{
+    const ok=current.join('|')==="medicalLog|medicalDrug" && past.slice().sort().join('|')===["kangMedical","kangLetter","kangReport"].sort().join('|');
+    ok ? pass("medical",["의무기록 / 약품 누락","강하나 / 가족 편지와 과거 기록"],["kangMedical","kangLetter","kangReport"],"medical") : draw("분류가 맞지 않는다");
+  };
+ }
+ draw();
+}
 function corridor(){let dir="",handle="";function draw(e=""){$("puzzleRoot").innerHTML=pTitle("복도 흔적 확인")+`<div class="row">${card("footprints","현재 사건 / 발자국")}${card("handle","현재 사건 / 문손잡이")}${card("leePhoto","해금 예정 / 오래된 사진")}</div><div class="slot">발자국 방향: ${dir||"선택 대기"}</div><div class="row" id="dirs"></div><div class="slot">문손잡이 흔적: ${handle||"선택 대기"}</div><div class="row" id="handles"></div>`+msg(e)+`<div class="actions"><button class="btn" id="clear">초기화</button><button class="btn primary" id="check">흔적 확인</button></div>`;["라운지 쪽으로 돌아간다","객실 문 앞에서 멈춘다","비상계단 쪽으로 이어진다"].forEach(x=>option("dirs",x,dir===x,()=>{dir=x;draw()}));["문이 열린 흔적","문이 잠긴 흔적","청소 흔적"].forEach(x=>option("handles",x,handle===x,()=>{handle=x;draw()}));$("clear").onclick=()=>{dir="";handle="";draw()};$("check").onclick=()=>dir==="객실 문 앞에서 멈춘다"&&handle==="문이 열린 흔적"?pass("corridor",["발자국 / 객실 문 앞 정지","문손잡이 / 열린 흔적","이민정 / 오래된 사진"],["leePhoto"],"corridor"):draw("흔적 선택 불일치")}draw()}
 
 function cabin(){let order=[],gap="";const cards=[["22:02 정상 호출","22:02"],["22:15 호출 시작","22:15"],["22:22 응답 없음","22:22"],["22:31 기록 종료","22:31"]];function draw(e=""){$("puzzleRoot").innerHTML=pTitle("호출 기록 빈칸")+`<div class="row">${card("cabinCall","현재 사건 / 호출 기록")}${card("cabinTrace","현재 사건 / 충돌 흔적")}${card("leeCall","과거 기록 / 통화 기록")}${card("leeLawsuit","과거 기록 / 진정서")}</div><div class="slot">기록 순서: ${order.join(" → ")||"선택 대기"}</div><div class="row" id="timeBtns"></div><div class="slot">비어 있는 구간: ${gap||"선택 대기"}</div><div class="row" id="gapBtns"></div>`+msg(e)+`<div class="actions"><button class="btn" id="clear">초기화</button><button class="btn primary" id="check">기록 확인</button></div>`;cards.forEach(([label,val])=>option("timeBtns",label,order.includes(val),()=>{if(!order.includes(val))order.push(val);draw()}));["22:02-22:15","22:15-22:22","22:22-22:31"].forEach(x=>option("gapBtns",x,gap===x,()=>{gap=x;draw()}));$("clear").onclick=()=>{order=[];gap="";draw()};$("check").onclick=()=>order.join("|")==="22:02|22:15|22:22|22:31"&&gap==="22:15-22:22"?pass("cabin",["22:15-22:22 / 호출 공백","이민정 / 통화 기록과 반려된 진정서","객실 현장 / 대면 이후의 흔적"],["leeCall","leeLawsuit"],"cabin"):draw("시간 순서 또는 공백 구간 불일치")}draw()}
 
-function office(){let map={};const docs=[["hwangContract","계약"],["hwangAccess","접근"],["officeThreat","경고"],["officeMail","보고 차단"],["hwangBlackmail","내부 압박"]];function draw(e=""){$("puzzleRoot").innerHTML=pTitle("문서 도장 분류")+`<div class="row" id="docs"></div>`+msg(e)+`<div class="actions"><button class="btn" id="clear">초기화</button><button class="btn primary" id="check">문서 확인</button></div>`;docs.forEach(([id,ans])=>{const d=document.createElement("div");d.className="card";d.innerHTML=`<img src="${A(clues[id].img)}"><div>${clues[id].title}</div><div class="slot">${map[id]||"도장 대기"}</div><button class="opt">계약</button><button class="opt">접근</button><button class="opt">경고</button><button class="opt">보고 차단</button><button class="opt">내부 압박</button><button class="opt">확대</button>`;const bs=d.querySelectorAll("button");["계약","접근","경고","보고 차단","내부 압박"].forEach((x,i)=>bs[i].onclick=()=>{map[id]=x;draw()});bs[5].onclick=()=>openImage(clues[id].title,A(clues[id].img),clues[id].note);$("docs").appendChild(d)});$("clear").onclick=()=>{map={};draw()};$("check").onclick=()=>docs.every(([id,ans])=>map[id]===ans)?pass("office",["계약 / 접근 / 경고 / 보고 차단 / 내부 압박","황세준 / 최태오 회사 내부자와 통신 접근 권한"],["hwangContract","hwangAccess","hwangBlackmail"],"office"):draw("문서 분류 불일치")}draw()}
-
+function office(){
+ let map={};
+ const docs=[["hwangContract","계약"],["hwangAccess","접근"],["officeThreat","경고"],["officeMail","차단"],["hwangBlackmail","압박"]];
+ const choices=["계약","접근","경고","차단","압박"];
+ function draw(e=""){
+  $("puzzleRoot").innerHTML=pTitle("문서 분류")+`<div class="row compactRow" id="docs"></div>`+msg(e)+`<div class="actions"><button class="btn" id="clear">초기화</button><button class="btn primary" id="check">문서 확인</button></div>`;
+  docs.forEach(([id,ans])=>{
+    const d=document.createElement("div");
+    d.className="clueTile";
+    d.innerHTML=`<button class="zoomTile"><img src="${A(clues[id].img)}"><span>${clues[id].title}</span></button><div class="slot ${map[id]?"filled":""}">${map[id]||"분류"}</div><div class="pickBtns"></div>`;
+    d.querySelector('.zoomTile').onclick=()=>openImage(clues[id].title,A(clues[id].img),clues[id].note);
+    choices.forEach(ch=>{const b=document.createElement('button');b.className=`miniBtn ${map[id]===ch?'sel':''}`;b.textContent=ch;b.onclick=()=>{map[id]=ch;draw()};d.querySelector('.pickBtns').appendChild(b)});
+    $("docs").appendChild(d);
+  });
+  $("clear").onclick=()=>{map={};draw()};
+  $("check").onclick=()=>docs.every(([id,ans])=>map[id]===ans)
+     ? pass("office",["계약 / 접근 / 경고 / 보고 차단 / 내부 압박","황세준 / 최태오 회사 내부자와 통신 접근 권한"],["hwangContract","hwangAccess","hwangBlackmail"],"office")
+     : draw("문서 분류가 맞지 않는다");
+ }
+ draw();
+}
 function communication(){let seq=[];const nums=["17","9","5","3","22","18"],answer="179532218";function draw(e=""){$("puzzleRoot").innerHTML=pTitle("송신 기록 복원")+`<div class="codeGrid"><div>${card("transCode","송신 코드 카드")}${card("console","통신 콘솔")}${card("channel","비상 채널")}${card("routeLock","항로 잠금")}</div><div><div class="slot">좌측 기록 → 우측 기록<br>위에서 아래로 입력</div><div class="display">${seq.join("")||"송신 대기"}</div><div id="nums" class="numBtns"></div>`+msg(e)+`<div class="actions"><button class="btn" id="clear">초기화</button><button class="btn primary" id="send">송신</button></div></div></div>`;nums.forEach(n=>{const b=document.createElement("button");b.className="num";b.textContent=n;b.onclick=()=>{seq.push(n);draw()};$("nums").appendChild(b)});$("clear").onclick=()=>{seq=[];draw()};$("send").onclick=()=>{if(!state.truth){showEnding(false,"SIGNAL LOST","TRUTH REQUIRED");return}seq.join("")===answer?(state.escape=true,note("SIGNAL SENT"),note("ROUTE UNLOCKED"),save(),showEnding(true,"송신 완료","항로 잠금 해제")):draw("열 순서 불일치")}}draw()}
 
 const dialogues={deck:{profile:"lee",name:"이민정",lines:["갑판 사진의 시간이 맞춰지자, 최태오가 쓰러진 뒤 배가 어디에도 닿지 못한 시간이 드러났다.","이민정은 바다 쪽을 보며 말했다. “최태오 대표가 쓰러진 건 갑판이 아니었어요. 시작은 라운지였죠.”","그녀의 말은 최태오의 마지막 동선을 라운지 쪽으로 돌려놓았다."]},lounge:{profile:"kang",name:"강하나",lines:["좌석 도면이 복원되자 최태오의 VIP 좌석과 가까운 초청석이 드러났다.","강하나는 손을 움켜쥐었다. “그 자리에 앉았다는 이유만으로는 아무것도 증명할 수 없어요.”","그 말과 함께 접힌 가족 편지가 수집 기록에 남았다. 강하나는 단순한 초청객이 아니었다."]},medical:{profile:"kang",name:"강하나",lines:["현재의 약품 누락 기록과 과거 부작용 보고서가 나란히 놓였다.","강하나는 긴 침묵 끝에 말했다. “그 보고서는 오래전에 사라졌어야 했어요. 우리 가족도, 그 기록도요.”","최태오의 회사가 묻어둔 부작용 사건은 강하나가 이 배에 오른 이유가 되었다."]},corridor:{profile:"lee",name:"이민정",lines:["발자국은 객실 문 앞에서 멈췄고, 문손잡이는 누군가의 접촉을 남겼다.","이민정은 오래된 사진을 바라보며 말했다. “그 사람을 모른다고 한 적은 없어요. 그 약을 먹은 뒤로 제 삶이 달라졌을 뿐이죠.”","이민정은 최태오와 과거부터 이어진 직접 피해자였다."]},cabin:{profile:"lee",name:"이민정",lines:["호출 기록의 빈 구간은 22:15에서 22:22 사이에 고정되었다.","이민정은 낮게 말했다. “제가 방을 나왔을 때, 아직 완전히 끝난 건 아니었어요.”","반려된 진정서와 호출 기록은 최태오가 침묵 속에 남겨진 시간을 보여주었다."]},office:{profile:"hwang",name:"황세준",lines:["문서들이 분류되자 계약서, 접근 로그, 압박 문서가 한 줄로 이어졌다.","황세준은 문서를 보고 더 이상 부정하지 못했다. “예전엔 최태오 대표의 회사에서 일했습니다. 그때부터 빠져나올 수 없었죠.”","통신실 접근 권한은 사건 이후 배가 밀실이 된 이유를 가리켰다."]}};
