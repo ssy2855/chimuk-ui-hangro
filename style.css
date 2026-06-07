@@ -310,3 +310,43 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,"Noto S
 .nameTag.lee{left:46%;bottom:18%}
 .nameTag.hwang{right:14%;bottom:18%}
 @media (max-width: 900px){.dialogueLayout{grid-template-columns:1fr}.vnPortraitWrap{min-height:280px}.vnPortrait{max-height:280px}}
+
+
+/* direct player objection refinements */
+.objectionBtn{
+  min-width:128px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+.testimonyMeter{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:10px 0 4px;
+}
+.testimonyMeter span{
+  width:32px;
+  height:5px;
+  border:1px solid rgba(201,155,90,.45);
+  background:rgba(255,255,255,.08);
+}
+.testimonyMeter span.on{
+  background:var(--cyan);
+  border-color:var(--cyan);
+  box-shadow:0 0 10px rgba(25,211,197,.35);
+}
+.vnBox .msg{
+  color:#d2b98b;
+}
+
+
+/* final monologue tone */
+.dialogue{
+  text-align:left;
+}
+.vnBox .dialogue{
+  font-size:19px;
+}
+.summaryText p{
+  margin:0 0 18px;
+}
